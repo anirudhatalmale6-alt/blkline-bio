@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = '';
+const WHATSAPP_NUMBER = '61494749909';
 
 const PRODUCTS = [
   { id: 1, name: 'BPC-157', category: 'Recovery', price: 89.99, currency: 'AUD', badge: 'Popular', desc: 'Body Protection Compound. Supports tissue repair and gut health recovery.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
