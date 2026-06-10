@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout — BLKLINE BIO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <img src="../images/logo-dark.jpg" alt="BLKLINE BIO">
+        <div>
+          <div class="logo-text">BLKLINE BIO</div>
+          <div class="logo-tagline">Precision. Performance. Biology.</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="../index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="nav-icons">
+        <a href="#" class="nav-icon" onclick="openCart();return false;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span class="cart-count" style="display:none">0</span>
+        </a>
+        <button class="mobile-toggle" onclick="toggleMobileNav()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="../index.html" onclick="toggleMobileNav()">Home</a>
+    <a href="products.html" onclick="toggleMobileNav()">Products</a>
+    <a href="about.html" onclick="toggleMobileNav()">About</a>
+    <a href="contact.html" onclick="toggleMobileNav()">Contact</a>
+  </div>
+
+  <section class="section checkout-page">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-label">Secure Checkout</div>
+        <h2 class="section-title">Complete Your Order</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="checkout-grid">
+        <div class="checkout-form fade-up">
+          <h2>Your Details</h2>
+          <form id="checkoutForm" onsubmit="submitOrder(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" name="firstName" required>
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" name="lastName" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" required>
+            </div>
+            <div class="form-group">
+              <label>Shipping Address</label>
+              <input type="text" name="address" required placeholder="Street address">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" name="city" required>
+              </div>
+              <div class="form-group">
+                <label>State</label>
+                <select name="state" required>
+                  <option value="">Select state</option>
+                  <option value="NSW">New South Wales</option>
+                  <option value="VIC">Victoria</option>
+                  <option value="QLD">Queensland</option>
+                  <option value="WA">Western Australia</option>
+                  <option value="SA">South Australia</option>
+                  <option value="TAS">Tasmania</option>
+                  <option value="ACT">ACT</option>
+                  <option value="NT">Northern Territory</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Postcode</label>
+                <input type="text" name="postcode" required>
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" name="country" value="Australia" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Order Notes (Optional)</label>
+              <textarea name="notes" placeholder="Any special instructions..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-add-large" style="width:100%;margin-top:16px">Place Order</button>
+          </form>
+        </div>
+
+        <div class="fade-up">
+          <div class="order-summary">
+            <h3>Order Summary</h3>
+            <div class="order-items" id="orderItems"></div>
+            <div class="order-total">
+              <span>Total</span>
+              <span id="orderTotal">$0.00</span>
+            </div>
+          </div>
+
+          <div class="bank-details" style="margin-top:24px">
+            <h4>Payment via Bank Transfer</h4>
+            <p>After placing your order, you'll receive bank transfer details. Please include your order number as the payment reference.</p>
+            <p style="margin-top:12px;color:var(--silver)">Your order will be processed once payment is confirmed. For faster processing, send a screenshot of your transfer via WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER CONFIRMATION MODAL -->
+  <div id="confirmationModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center">
+    <div style="background:var(--dark2);border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:48px;max-width:500px;width:90%;text-align:center">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" style="margin-bottom:20px"><path d="M20 6L9 17l-5-5"/></svg>
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;letter-spacing:4px;text-transform:uppercase;color:var(--white);margin-bottom:12px">Order Placed</h2>
+      <p style="color:var(--white-muted);margin-bottom:8px">Your order number is:</p>
+      <p id="orderNumber" style="font-family:var(--font-display);font-size:1.6rem;color:var(--silver);letter-spacing:3px;margin-bottom:24px"></p>
+      <div class="bank-details" style="text-align:left;margin-bottom:24px">
+        <h4>Bank Transfer Details</h4>
+        <p>Please transfer the total amount to the following account and use your order number as the payment reference.</p>
+        <p style="margin-top:8px;color:var(--silver)">Bank details will be sent to your email shortly.</p>
+      </div>
+      <p style="color:var(--white-muted);font-size:.85rem;margin-bottom:24px">Send your payment confirmation screenshot via WhatsApp for faster processing.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="#" id="confirmWhatsApp" class="btn btn-primary" target="_blank">Confirm via WhatsApp</a>
+        <a href="../index.html" class="btn btn-outline">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; 2026 BLKLINE BIO. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header"><h3>Your Cart</h3><button class="cart-close" onclick="closeCart()">&times;</button></div>
+    <div class="cart-items" id="cartItems"><div class="cart-empty">Your cart is empty</div></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><span id="cartTotal">$0.00</span></div>
+      <button class="btn-checkout" id="cartCheckoutBtn" onclick="goToCheckout()" disabled>Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+    <span class="toast-msg"></span>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const itemsEl = document.getElementById('orderItems');
+      const totalEl = document.getElementById('orderTotal');
+      if (cart.length === 0) {
+        itemsEl.innerHTML = '<p style="color:var(--white-muted);font-size:.85rem">No items in cart. <a href="products.html" style="color:var(--silver)">Browse products</a></p>';
+        return;
+      }
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="order-item">
+          <span class="name">${item.name} x${item.qty}</span>
+          <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
+        </div>
+      `).join('');
+      totalEl.textContent = `$${getCartTotal().toFixed(2)} AUD`;
+    });
+
+    function submitOrder(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      const orderNum = 'BLK-' + Date.now().toString(36).toUpperCase();
+
+      document.getElementById('orderNumber').textContent = orderNum;
+
+      const orderText = `New Order ${orderNum}%0A` +
+        `Name: ${data.get('firstName')} ${data.get('lastName')}%0A` +
+        `Items: ${cart.map(i => i.name + ' x' + i.qty).join(', ')}%0A` +
+        `Total: $${getCartTotal().toFixed(2)} AUD%0A` +
+        `Address: ${data.get('address')}, ${data.get('city')} ${data.get('state')} ${data.get('postcode')}`;
+
+      const waNum = WHATSAPP_NUMBER || '0000000000';
+      document.getElementById('confirmWhatsApp').href = `https://wa.me/${waNum}?text=${orderText}`;
+
+      const modal = document.getElementById('confirmationModal');
+      modal.style.display = 'flex';
+
+      cart = [];
+      saveCart();
+    }
+  </script>
+</body>
+</html>
