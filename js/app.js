@@ -1,14 +1,41 @@
 const WHATSAPP_NUMBER = '61494749909';
 
+// =============================================
+// PRODUCT DATA - Edit stock numbers here to
+// update availability. Set stock to 0 to show
+// "Coming Soon". Set a price when product
+// becomes available.
+// =============================================
 const PRODUCTS = [
-  { id: 1, name: 'BPC-157', category: 'Recovery', price: 89.99, currency: 'AUD', badge: 'Popular', desc: 'Body Protection Compound. Supports tissue repair and gut health recovery.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 2, name: 'TB-500', category: 'Recovery', price: 79.99, currency: 'AUD', desc: 'Thymosin Beta-4 fragment. Supports cellular repair and flexibility.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 3, name: 'GHK-Cu', category: 'Anti-Aging', price: 94.99, currency: 'AUD', badge: 'New', desc: 'Copper peptide complex. Supports skin remodeling and collagen synthesis.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 4, name: 'CJC-1295', category: 'Performance', price: 109.99, currency: 'AUD', desc: 'Growth hormone releasing hormone analog. Supports GH secretion research.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
-  { id: 5, name: 'Ipamorelin', category: 'Performance', price: 84.99, currency: 'AUD', desc: 'Selective GH secretagogue peptide. Clean growth hormone pulse support.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
-  { id: 6, name: 'PT-141', category: 'Wellness', price: 74.99, currency: 'AUD', desc: 'Melanocortin receptor agonist. For wellness and vitality research applications.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 7, name: 'Selank', category: 'Cognitive', price: 69.99, currency: 'AUD', desc: 'Synthetic peptide analog of tuftsin. Supports cognitive and anxiolytic research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 8, name: 'Epithalon', category: 'Anti-Aging', price: 99.99, currency: 'AUD', desc: 'Tetrapeptide for telomerase activation research. Longevity and cellular aging studies.', specs: { 'Purity': '99%+', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+  // ========== WEIGHT LOSS ==========
+  { id: 1, name: 'Retatrutide 10mg', category: 'Weight Loss', price: 90, currency: 'AUD', stock: 10, badge: 'Popular', desc: 'Triple agonist targeting GLP-1, GIP, and glucagon receptors. Advanced metabolic research compound.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 10, desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 3, name: 'Tirzepatide 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Dual GLP-1/GIP receptor agonist. Next-generation metabolic research peptide.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 4, name: 'Tesamorelin 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Growth hormone releasing factor analog. Supports visceral fat reduction research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+  { id: 5, name: '5-Amino-1MQ 5mg', category: 'Weight Loss', price: 40, currency: 'AUD', stock: 10, desc: 'NNMT inhibitor. Supports cellular energy metabolism and fat oxidation research.', specs: { 'Purity': '98%+', 'Amount': '5mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+
+  // ========== RECOVERY ==========
+  { id: 6, name: 'BPC-157 10mg', category: 'Recovery', price: 70, currency: 'AUD', stock: 10, badge: 'Popular', desc: 'Body Protection Compound. Supports tissue repair, gut health, and angiogenesis research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 7, name: 'TB-500 10mg', category: 'Recovery', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Thymosin Beta-4 fragment. Supports cellular repair, flexibility, and wound healing research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+  { id: 8, name: 'KPV 10mg', category: 'Recovery', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Anti-inflammatory tripeptide derived from alpha-MSH. Supports gut health and inflammation research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+
+  // ========== ANTI-AGING ==========
+  { id: 9, name: 'GHK-Cu 50mg', category: 'Anti-Aging', price: 50, currency: 'AUD', stock: 10, desc: 'Copper peptide complex. Supports skin remodeling, collagen synthesis, and wound healing research.', specs: { 'Purity': '98%+', 'Amount': '50mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 10, name: 'Glutathione 600mg', category: 'Anti-Aging', price: 70, currency: 'AUD', stock: 10, desc: 'Master antioxidant. Supports detoxification, immune function, and cellular protection research.', specs: { 'Purity': '99%+', 'Amount': '600mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 11, name: 'NAD+ 500mg', category: 'Anti-Aging', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Nicotinamide adenine dinucleotide. Essential coenzyme for cellular energy and longevity research.', specs: { 'Amount': '500mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+  { id: 12, name: 'MOTS-c 10mg', category: 'Anti-Aging', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Mitochondrial-derived peptide. Supports metabolic homeostasis and exercise mimetic research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+
+  // ========== TANNING ==========
+  { id: 13, name: 'Melanotan I 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, desc: 'Alpha-melanocyte stimulating hormone analog. Supports melanogenesis and skin pigmentation research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 14, name: 'Melanotan II 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, desc: 'Melanocortin receptor agonist. Supports tanning response and melanin production research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+
+  // ========== COGNITIVE ==========
+  { id: 15, name: 'Selank', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, desc: 'Synthetic tuftsin analog. Supports anxiolytic, nootropic, and immune modulation research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 16, name: 'Semax', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, desc: 'Synthetic ACTH analog. Supports cognitive enhancement, neuroprotection, and focus research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+
+  // ========== SUPPLIES ==========
+  { id: 17, name: 'Bac Water 3ml', category: 'Supplies', price: 10, currency: 'AUD', stock: 20, desc: 'Bacteriostatic water for reconstitution. Contains 0.9% benzyl alcohol preservative.', specs: { 'Volume': '3ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
+  { id: 18, name: 'Bac Water 10ml', category: 'Supplies', price: 15, currency: 'AUD', stock: 20, desc: 'Bacteriostatic water for reconstitution. Larger volume for multiple uses.', specs: { 'Volume': '10ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
 ];
 
 let cart = JSON.parse(localStorage.getItem('blkline_cart') || '[]');
@@ -31,7 +58,16 @@ function saveCart() {
 function addToCart(productId, qty = 1) {
   const product = PRODUCTS.find(p => p.id === productId);
   if (!product) return;
+  if (product.stock <= 0) {
+    showToast('This product is coming soon');
+    return;
+  }
   const existing = cart.find(item => item.id === productId);
+  const currentQty = existing ? existing.qty : 0;
+  if (currentQty + qty > product.stock) {
+    showToast(`Only ${product.stock} left in stock`);
+    return;
+  }
   if (existing) {
     existing.qty += qty;
   } else {
@@ -51,7 +87,14 @@ function removeFromCart(productId) {
 function updateQty(productId, delta) {
   const item = cart.find(i => i.id === productId);
   if (!item) return;
-  item.qty = Math.max(1, item.qty + delta);
+  const product = PRODUCTS.find(p => p.id === productId);
+  const newQty = item.qty + delta;
+  if (newQty < 1) return;
+  if (product && newQty > product.stock) {
+    showToast(`Only ${product.stock} left in stock`);
+    return;
+  }
+  item.qty = newQty;
   saveCart();
   renderCartItems();
 }
@@ -117,23 +160,29 @@ function renderCartItems() {
 function renderProducts(containerId, products) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.innerHTML = products.map(p => `
-    <div class="product-card fade-up" onclick="goToProduct(${p.id})">
+  container.innerHTML = products.map(p => {
+    const outOfStock = p.stock <= 0;
+    const lowStock = p.stock > 0 && p.stock <= 3;
+    return `
+    <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
       <div class="product-image">
         ${vialSVG}
-        ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+        ${p.badge === 'Coming Soon' ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>
       <div class="product-info">
         <div class="product-category">${p.category}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-desc">${p.desc}</div>
         <div class="product-footer">
-          <div class="product-price"><span class="currency">$</span>${p.price.toFixed(2)} <span class="currency">${p.currency}</span></div>
-          <button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>
+          ${outOfStock
+            ? `<div class="product-price" style="color:var(--silver-dark)">Coming Soon</div><button class="btn-add btn-soon" disabled>Coming Soon</button>`
+            : `<div class="product-price"><span class="currency">$</span>${p.price.toFixed(2)} <span class="currency">${p.currency}</span></div><button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>`
+          }
         </div>
+        ${lowStock ? `<div class="stock-low">Only ${p.stock} left</div>` : ''}
       </div>
     </div>
-  `).join('');
+  `}).join('');
   observeFadeUp();
 }
 
@@ -178,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
-    renderProducts('featuredProducts', PRODUCTS.slice(0, 4));
+    renderProducts('featuredProducts', PRODUCTS.filter(p => p.stock > 0).slice(0, 4));
   }
 
   const allContainer = document.getElementById('allProducts');

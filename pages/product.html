@@ -106,24 +106,37 @@
         `<div class="spec-row"><span class="label">${k}</span><span class="value">${v}</span></div>`
       ).join('') : '';
 
+      const outOfStock = product.stock <= 0;
+      const lowStock = product.stock > 0 && product.stock <= 3;
+
       document.getElementById('productDetail').innerHTML = `
-        <div class="product-detail-image fade-up">
+        <div class="product-detail-image fade-up" ${outOfStock ? 'style="opacity:.5"' : ''}>
           ${vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
         </div>
         <div class="product-detail-info fade-up">
           <div class="category">${product.category}</div>
           <h1>${product.name}</h1>
-          <div class="price">$${product.price.toFixed(2)} <span style="font-size:.9rem;color:var(--silver-dark)">${product.currency}</span></div>
-          <div class="description">${product.desc}</div>
-          <div class="qty-selector">
-            <label>Quantity</label>
-            <div class="qty-controls">
-              <button onclick="changeQty(-1)">&minus;</button>
-              <span id="qtyValue">1</span>
-              <button onclick="changeQty(1)">+</button>
-            </div>
-          </div>
-          <button class="btn btn-primary btn-add-large" onclick="addToCart(${product.id}, detailQty)">Add to Cart — $<span id="totalPrice">${product.price.toFixed(2)}</span></button>
+          ${outOfStock
+            ? `<div class="price" style="color:var(--silver-dark)">Coming Soon</div>
+               <div class="description">${product.desc}</div>
+               <div style="padding:16px;background:var(--dark3);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);text-align:center;margin-bottom:24px">
+                 <p style="font-size:.85rem;color:var(--silver-dark)">This product is currently out of stock.</p>
+                 <p style="font-size:.8rem;color:var(--white-muted);margin-top:4px">Expected availability: 1-2 weeks</p>
+                 <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Hi, I'm interested in ${encodeURIComponent(product.name)} — can you let me know when it's back in stock?" target="_blank" class="btn btn-outline" style="margin-top:12px;padding:10px 24px;font-size:.7rem">Notify Me via WhatsApp</a>
+               </div>`
+            : `<div class="price">$${product.price.toFixed(2)} <span style="font-size:.9rem;color:var(--silver-dark)">${product.currency}</span></div>
+               <div class="description">${product.desc}</div>
+               ${lowStock ? '<div style="font-size:.75rem;color:#e8a838;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Only ' + product.stock + ' left in stock</div>' : ''}
+               <div class="qty-selector">
+                 <label>Quantity</label>
+                 <div class="qty-controls">
+                   <button onclick="changeQty(-1)">&minus;</button>
+                   <span id="qtyValue">1</span>
+                   <button onclick="changeQty(1)">+</button>
+                 </div>
+               </div>
+               <button class="btn btn-primary btn-add-large" onclick="addToCart(${product.id}, detailQty)">Add to Cart — $<span id="totalPrice">${product.price.toFixed(2)}</span></button>`
+          }
           ${specsHtml ? `<div class="product-specs"><h3 style="font-family:var(--font-display);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--white);margin-bottom:16px">Specifications</h3>${specsHtml}</div>` : ''}
         </div>
       `;
@@ -138,7 +151,13 @@
     }
 
     function changeQty(d) {
-      detailQty = Math.max(1, detailQty + d);
+      const newQty = detailQty + d;
+      if (newQty < 1) return;
+      if (product && newQty > product.stock) {
+        showToast(`Only ${product.stock} left in stock`);
+        return;
+      }
+      detailQty = newQty;
       document.getElementById('qtyValue').textContent = detailQty;
       document.getElementById('totalPrice').textContent = (product.price * detailQty).toFixed(2);
     }
