@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -54,66 +55,95 @@
 
       <div class="checkout-grid">
         <div class="checkout-form fade-up">
-          <h2>Your Details</h2>
-          <form id="checkoutForm" onsubmit="submitOrder(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label>First Name</label>
-                <input type="text" name="firstName" required>
+          <h2>Choose Payment Method</h2>
+
+          <div class="payment-tabs" style="display:flex;gap:12px;margin-bottom:28px">
+            <button class="payment-tab active" id="tabCard" onclick="switchPayment('card')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Pay with Card
+            </button>
+            <button class="payment-tab" id="tabBank" onclick="switchPayment('bank')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+              Bank Transfer
+            </button>
+          </div>
+
+          <!-- CARD PAYMENT -->
+          <div id="cardPayment">
+            <p style="color:var(--white-muted);font-size:.85rem;margin-bottom:20px">Pay securely with your credit or debit card. You'll be redirected to our secure payment page powered by Stripe.</p>
+            <button type="button" class="btn btn-primary btn-add-large" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:.8rem" onclick="payWithStripe()" id="stripePayBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Pay Now — $<span id="stripeTotal">0.00</span> AUD
+            </button>
+            <div id="stripeError" style="display:none;color:#e74c3c;font-size:.8rem;margin-top:12px;text-align:center"></div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;opacity:.5">
+              <svg width="32" height="20" viewBox="0 0 32 20"><rect width="32" height="20" rx="3" fill="#1a1f36"/><text x="16" y="13" text-anchor="middle" fill="#635bff" font-size="8" font-weight="600" font-family="sans-serif">stripe</text></svg>
+              <span style="font-size:.7rem;color:var(--silver-dark)">Secure payment</span>
+            </div>
+          </div>
+
+          <!-- BANK TRANSFER -->
+          <div id="bankPayment" style="display:none">
+            <form id="checkoutForm" onsubmit="submitOrder(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name</label>
+                  <input type="text" name="firstName" required>
+                </div>
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <input type="text" name="lastName" required>
+                </div>
               </div>
               <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" name="lastName" required>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-              <label>Phone Number</label>
-              <input type="tel" name="phone" required>
-            </div>
-            <div class="form-group">
-              <label>Shipping Address</label>
-              <input type="text" name="address" required placeholder="Street address">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>City</label>
-                <input type="text" name="city" required>
+                <label>Email Address</label>
+                <input type="email" name="email" required>
               </div>
               <div class="form-group">
-                <label>State</label>
-                <select name="state" required>
-                  <option value="">Select state</option>
-                  <option value="NSW">New South Wales</option>
-                  <option value="VIC">Victoria</option>
-                  <option value="QLD">Queensland</option>
-                  <option value="WA">Western Australia</option>
-                  <option value="SA">South Australia</option>
-                  <option value="TAS">Tasmania</option>
-                  <option value="ACT">ACT</option>
-                  <option value="NT">Northern Territory</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Postcode</label>
-                <input type="text" name="postcode" required>
+                <label>Phone Number</label>
+                <input type="tel" name="phone" required>
               </div>
               <div class="form-group">
-                <label>Country</label>
-                <input type="text" name="country" value="Australia" readonly>
+                <label>Shipping Address</label>
+                <input type="text" name="address" required placeholder="Street address">
               </div>
-            </div>
-            <div class="form-group">
-              <label>Order Notes (Optional)</label>
-              <textarea name="notes" placeholder="Any special instructions..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-add-large" style="width:100%;margin-top:16px">Place Order</button>
-          </form>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="text" name="city" required>
+                </div>
+                <div class="form-group">
+                  <label>State</label>
+                  <select name="state" required>
+                    <option value="">Select state</option>
+                    <option value="NSW">New South Wales</option>
+                    <option value="VIC">Victoria</option>
+                    <option value="QLD">Queensland</option>
+                    <option value="WA">Western Australia</option>
+                    <option value="SA">South Australia</option>
+                    <option value="TAS">Tasmania</option>
+                    <option value="ACT">ACT</option>
+                    <option value="NT">Northern Territory</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Postcode</label>
+                  <input type="text" name="postcode" required>
+                </div>
+                <div class="form-group">
+                  <label>Country</label>
+                  <input type="text" name="country" value="Australia" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Order Notes (Optional)</label>
+                <textarea name="notes" placeholder="Any special instructions..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-add-large" style="width:100%;margin-top:16px">Place Order via Bank Transfer</button>
+            </form>
+          </div>
         </div>
 
         <div class="fade-up">
@@ -126,7 +156,7 @@
             </div>
           </div>
 
-          <div class="bank-details" style="margin-top:24px">
+          <div class="bank-details" id="bankDetailsBox" style="margin-top:24px;display:none">
             <h4>Payment via Bank Transfer</h4>
             <div style="margin:12px 0;padding:16px;background:var(--dark4);border-radius:var(--radius);border:1px solid rgba(192,192,192,.1)">
               <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.85rem"><span style="color:var(--silver-dark)">Account Name</span><span style="color:var(--white)">BLKLINE BIO</span></div>
@@ -145,7 +175,7 @@
     </div>
   </section>
 
-  <!-- ORDER CONFIRMATION MODAL -->
+  <!-- ORDER CONFIRMATION MODAL (bank transfer only) -->
   <div id="confirmationModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;align-items:center;justify-content:center">
     <div style="background:var(--dark2);border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:48px;max-width:500px;width:90%;text-align:center">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" style="margin-bottom:20px"><path d="M20 6L9 17l-5-5"/></svg>
@@ -194,11 +224,23 @@
 
   <script src="../js/app.js"></script>
   <script>
+    const stripe = Stripe(STRIPE_PK);
+
+    function switchPayment(method) {
+      document.getElementById('cardPayment').style.display = method === 'card' ? 'block' : 'none';
+      document.getElementById('bankPayment').style.display = method === 'bank' ? 'block' : 'none';
+      document.getElementById('bankDetailsBox').style.display = method === 'bank' ? 'block' : 'none';
+      document.getElementById('tabCard').classList.toggle('active', method === 'card');
+      document.getElementById('tabBank').classList.toggle('active', method === 'bank');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const itemsEl = document.getElementById('orderItems');
       const totalEl = document.getElementById('orderTotal');
+      const stripeTotalEl = document.getElementById('stripeTotal');
       if (cart.length === 0) {
         itemsEl.innerHTML = '<p style="color:var(--white-muted);font-size:.85rem">No items in cart. <a href="products.html" style="color:var(--silver)">Browse products</a></p>';
+        document.getElementById('stripePayBtn').disabled = true;
         return;
       }
       itemsEl.innerHTML = cart.map(item => `
@@ -207,8 +249,48 @@
           <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
         </div>
       `).join('');
-      totalEl.textContent = `$${getCartTotal().toFixed(2)} AUD`;
+      const total = getCartTotal();
+      totalEl.textContent = `$${total.toFixed(2)} AUD`;
+      if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
+
+    function payWithStripe() {
+      const btn = document.getElementById('stripePayBtn');
+      const errEl = document.getElementById('stripeError');
+      errEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Redirecting to payment...';
+
+      const lineItems = [];
+      for (const item of cart) {
+        const product = PRODUCTS.find(p => p.id === item.id);
+        if (!product || !product.stripePriceId) {
+          errEl.textContent = `Payment not available for ${item.name}. Please use bank transfer.`;
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
+          return;
+        }
+        lineItems.push({ price: product.stripePriceId, quantity: item.qty });
+      }
+
+      stripe.redirectToCheckout({
+        lineItems: lineItems,
+        mode: 'payment',
+        successUrl: window.location.origin + '/pages/success.html?session_id={CHECKOUT_SESSION_ID}',
+        cancelUrl: window.location.href,
+        shippingAddressCollection: {
+          allowedCountries: ['AU'],
+        },
+      }).then(function(result) {
+        if (result.error) {
+          errEl.textContent = result.error.message;
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
+        }
+      });
+    }
 
     function submitOrder(e) {
       e.preventDefault();
@@ -234,5 +316,12 @@
       saveCart();
     }
   </script>
+
+  <style>
+    .payment-tabs{display:flex;gap:12px;margin-bottom:28px}
+    .payment-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--font-display);background:var(--dark3);color:var(--silver-dark);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);transition:var(--transition);cursor:pointer}
+    .payment-tab:hover{border-color:rgba(192,192,192,.2)}
+    .payment-tab.active{background:var(--silver);color:var(--black);border-color:var(--silver)}
+  </style>
 </body>
 </html>
