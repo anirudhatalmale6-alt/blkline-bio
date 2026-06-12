@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -251,7 +252,7 @@
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
 
-    const CHECKOUT_API = 'http://167.235.196.123:3001';
+    const stripe = Stripe(STRIPE_PK);
 
     function resetPayBtn() {
       const btn = document.getElementById('stripePayBtn');
@@ -266,7 +267,7 @@
       btn.disabled = true;
       btn.textContent = 'Redirecting to payment...';
 
-      const items = [];
+      const lineItems = [];
       for (const item of cart) {
         const product = PRODUCTS.find(p => p.id === item.id);
         if (!product || !product.stripePriceId) {
@@ -275,20 +276,26 @@
           resetPayBtn();
           return;
         }
-        items.push({ price: product.stripePriceId, quantity: item.qty });
+        lineItems.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
-      const encoded = btoa(JSON.stringify(items.map(i => ({p:i.price,q:i.quantity}))));
-      const form = document.createElement('form');
-      form.method = 'GET';
-      form.action = CHECKOUT_API + '/checkout';
-      form.style.display = 'none';
-      const addField = (n, v) => { const i = document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
-      addField('items', encoded);
-      addField('success', window.location.origin + '/pages/success.html');
-      addField('cancel', window.location.href);
-      document.body.appendChild(form);
-      form.submit();
+      stripe.redirectToCheckout({
+        lineItems: lineItems,
+        mode: 'payment',
+        successUrl: window.location.origin + '/pages/success.html',
+        cancelUrl: window.location.href,
+        shippingAddressCollection: { allowedCountries: ['AU'] },
+      }).then(function(result) {
+        if (result.error) {
+          errEl.textContent = result.error.message;
+          errEl.style.display = 'block';
+        }
+        resetPayBtn();
+      }).catch(function(err) {
+        errEl.textContent = err.message || 'Something went wrong. Please try bank transfer.';
+        errEl.style.display = 'block';
+        resetPayBtn();
+      });
     }
 
     function submitOrder(e) {
