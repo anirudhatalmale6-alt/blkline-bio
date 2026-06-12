@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — BLKLINE BIO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-login{max-width:400px;margin:140px auto;text-align:center;padding:40px}
+    .admin-login input{width:100%;padding:12px 16px;background:var(--dark3);border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);color:var(--white);font-size:.9rem;margin:16px 0}
+    .admin-panel{padding-top:120px;max-width:900px;margin:0 auto;padding-left:20px;padding-right:20px}
+    .admin-table{width:100%;border-collapse:collapse;margin-top:20px}
+    .admin-table th{text-align:left;padding:10px 12px;font-family:var(--font-display);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dark);border-bottom:1px solid rgba(192,192,192,.1)}
+    .admin-table td{padding:8px 12px;border-bottom:1px solid rgba(192,192,192,.05);font-size:.85rem;color:var(--white)}
+    .admin-table input[type="number"]{width:70px;padding:6px 8px;background:var(--dark3);border:1px solid rgba(192,192,192,.1);border-radius:4px;color:var(--white);font-size:.85rem;text-align:center}
+    .admin-table .product-name{font-weight:500}
+    .admin-table .low{color:#e8a838}
+    .admin-table .out{color:#e74c3c}
+    .save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--dark1);border-top:1px solid rgba(192,192,192,.1);padding:16px;text-align:center;display:none;z-index:100}
+    .save-bar.show{display:block}
+    .save-bar button{padding:12px 40px;font-family:var(--font-display);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;background:var(--silver);color:var(--black);border:none;border-radius:var(--radius);cursor:pointer;font-weight:700}
+    .save-bar button:hover{background:var(--white)}
+    .save-msg{color:#25D366;font-size:.8rem;margin-top:8px;display:none}
+    .admin-note{background:var(--dark2);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;font-size:.8rem;color:var(--white-muted);line-height:1.6}
+  </style>
+</head>
+<body>
+
+  <div class="admin-login" id="loginPanel">
+    <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:4px;text-transform:uppercase;color:var(--white)">Admin Access</h2>
+    <input type="password" id="adminPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="checkLogin()">Login</button>
+    <p id="loginError" style="color:#e74c3c;font-size:.8rem;margin-top:12px;display:none">Incorrect password</p>
+  </div>
+
+  <div class="admin-panel" id="adminPanel" style="display:none">
+    <h1 style="font-family:var(--font-display);font-size:1.4rem;letter-spacing:4px;text-transform:uppercase;color:var(--white);margin-bottom:8px">Stock Manager</h1>
+    <p style="color:var(--silver-dark);font-size:.8rem;margin-bottom:24px">Update stock quantities below. Changes are saved to a file you can send me to apply.</p>
+
+    <div class="admin-note">
+      How it works: Edit stock numbers below, click Save Changes, then send me the downloaded file and I'll update the live site within minutes.
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price (AUD)</th>
+          <th>Stock</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="productRows"></tbody>
+    </table>
+    <div style="height:80px"></div>
+  </div>
+
+  <div class="save-bar" id="saveBar">
+    <button onclick="saveChanges()">Save Changes</button>
+    <div class="save-msg" id="saveMsg">Changes saved! Send the downloaded file to Anirudha to update the live site.</div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const ADMIN_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
+
+    async function sha256(text) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function checkLogin() {
+      const pass = document.getElementById('adminPass').value;
+      const hash = await sha256(pass);
+      if (hash === ADMIN_HASH) {
+        document.getElementById('loginPanel').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        renderAdmin();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+
+    function renderAdmin() {
+      const tbody = document.getElementById('productRows');
+      tbody.innerHTML = PRODUCTS.map(p => {
+        const statusClass = p.stock <= 0 ? 'out' : p.stock <= 3 ? 'low' : '';
+        const statusText = p.stock <= 0 ? 'Out of Stock' : p.stock <= 3 ? 'Low Stock' : 'In Stock';
+        return `<tr>
+          <td class="product-name">${p.name}</td>
+          <td style="color:var(--silver-dark)">${p.category}</td>
+          <td>$${p.price.toFixed(2)}</td>
+          <td><input type="number" min="0" value="${p.stock}" data-id="${p.id}" onchange="markChanged()"></td>
+          <td class="${statusClass}">${statusText}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function markChanged() {
+      document.getElementById('saveBar').classList.add('show');
+      document.getElementById('saveMsg').style.display = 'none';
+    }
+
+    function saveChanges() {
+      const updates = {};
+      document.querySelectorAll('.admin-table input[type="number"]').forEach(input => {
+        const id = parseInt(input.dataset.id);
+        const product = PRODUCTS.find(p => p.id === id);
+        const newStock = parseInt(input.value) || 0;
+        if (product && product.stock !== newStock) {
+          updates[product.name] = { from: product.stock, to: newStock };
+        }
+      });
+
+      if (Object.keys(updates).length === 0) {
+        document.getElementById('saveMsg').textContent = 'No changes detected.';
+        document.getElementById('saveMsg').style.display = 'block';
+        return;
+      }
+
+      let text = 'BLKLINE BIO - Stock Update\n';
+      text += 'Date: ' + new Date().toLocaleDateString('en-AU') + '\n\n';
+      for (const [name, change] of Object.entries(updates)) {
+        text += `${name}: ${change.from} → ${change.to}\n`;
+      }
+
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'stock-update-' + new Date().toISOString().slice(0,10) + '.txt';
+      a.click();
+
+      document.getElementById('saveMsg').textContent = 'Changes saved! Send the downloaded file to Anirudha to update the live site.';
+      document.getElementById('saveMsg').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
