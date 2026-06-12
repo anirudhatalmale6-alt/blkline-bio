@@ -13,22 +13,22 @@ const PRODUCTS = [
   { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvRKISinptghaYw2wqJCN', desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 3, name: 'Tirzepatide 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Dual GLP-1/GIP receptor agonist. Next-generation metabolic research peptide.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 4, name: 'Tesamorelin 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Growth hormone releasing factor analog. Supports visceral fat reduction research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
-  { id: 5, name: '5-Amino-1MQ 5mg', category: 'Weight Loss', price: 40, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvSKISinptghaeGmLzPfA', desc: 'NNMT inhibitor. Supports cellular energy metabolism and fat oxidation research.', specs: { 'Purity': '98%+', 'Amount': '5mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 5, name: '5-Amino-1MQ 5mg', category: 'Weight Loss', price: 40, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvSKISinptghaeGmLzPfA', image: 'images/products/5-amino-1mq.jpg', desc: 'NNMT inhibitor. Supports cellular energy metabolism and fat oxidation research.', specs: { 'Purity': '98%+', 'Amount': '5mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== RECOVERY ==========
-  { id: 6, name: 'BPC-157 10mg', category: 'Recovery', price: 70, currency: 'AUD', stock: 10, badge: 'Popular', stripePriceId: 'price_1ThHvTKISinptghaCX4XxGGz', desc: 'Body Protection Compound. Supports tissue repair, gut health, and angiogenesis research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 6, name: 'BPC-157 10mg', category: 'Recovery', price: 70, currency: 'AUD', stock: 10, badge: 'Popular', stripePriceId: 'price_1ThHvTKISinptghaCX4XxGGz', image: 'images/products/bpc-157.jpg', desc: 'Body Protection Compound. Supports tissue repair, gut health, and angiogenesis research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 7, name: 'TB-500 10mg', category: 'Recovery', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Thymosin Beta-4 fragment. Supports cellular repair, flexibility, and wound healing research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
   { id: 8, name: 'KPV 10mg', category: 'Recovery', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Anti-inflammatory tripeptide derived from alpha-MSH. Supports gut health and inflammation research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== ANTI-AGING ==========
-  { id: 9, name: 'GHK-Cu 50mg', category: 'Anti-Aging', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvTKISinptghaOJrVnJBV', desc: 'Copper peptide complex. Supports skin remodeling, collagen synthesis, and wound healing research.', specs: { 'Purity': '98%+', 'Amount': '50mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 9, name: 'GHK-Cu 50mg', category: 'Anti-Aging', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvTKISinptghaOJrVnJBV', image: 'images/products/ghk-cu-50mg.jpg', desc: 'Copper peptide complex. Supports skin remodeling, collagen synthesis, and wound healing research.', specs: { 'Purity': '98%+', 'Amount': '50mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 10, name: 'Glutathione 600mg', category: 'Anti-Aging', price: 70, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvUKISinptghaJ2J625XA', desc: 'Master antioxidant. Supports detoxification, immune function, and cellular protection research.', specs: { 'Purity': '99%+', 'Amount': '600mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 11, name: 'NAD+ 500mg', category: 'Anti-Aging', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Nicotinamide adenine dinucleotide. Essential coenzyme for cellular energy and longevity research.', specs: { 'Amount': '500mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
   { id: 12, name: 'MOTS-c 10mg', category: 'Anti-Aging', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Mitochondrial-derived peptide. Supports metabolic homeostasis and exercise mimetic research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
 
   // ========== TANNING ==========
-  { id: 13, name: 'Melanotan I 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvVKISinptghalQZnmOOs', desc: 'Alpha-melanocyte stimulating hormone analog. Supports melanogenesis and skin pigmentation research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 14, name: 'Melanotan II 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvVKISinptgha6BJA7vTL', desc: 'Melanocortin receptor agonist. Supports tanning response and melanin production research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 13, name: 'Melanotan I 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvVKISinptghalQZnmOOs', image: 'images/products/melanotan-1.jpg', desc: 'Alpha-melanocyte stimulating hormone analog. Supports melanogenesis and skin pigmentation research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 14, name: 'Melanotan II 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvVKISinptgha6BJA7vTL', image: 'images/products/melanotan-2.jpg', desc: 'Melanocortin receptor agonist. Supports tanning response and melanin production research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== COGNITIVE ==========
   { id: 15, name: 'Selank', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvWKISinptghaa6gEMo8d', desc: 'Synthetic tuftsin analog. Supports anxiolytic, nootropic, and immune modulation research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
@@ -138,9 +138,12 @@ function renderCartItems() {
     return;
   }
 
-  container.innerHTML = cart.map(item => `
+  container.innerHTML = cart.map(item => {
+    const product = PRODUCTS.find(p => p.id === item.id);
+    const imgPath = product && product.image ? getImagePath(product) : '';
+    return `
     <div class="cart-item">
-      <div class="cart-item-img">${vialSVG}</div>
+      <div class="cart-item-img">${imgPath ? `<img src="${imgPath}" alt="${item.name}">` : vialSVG}</div>
       <div class="cart-item-details">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">$${item.price.toFixed(2)} ${item.currency}</div>
@@ -151,11 +154,17 @@ function renderCartItems() {
         </div>
       </div>
       <button class="cart-item-remove" onclick="removeFromCart(${item.id})">&#x2715;</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   if (totalEl) totalEl.textContent = `$${getCartTotal().toFixed(2)}`;
   if (checkoutBtn) checkoutBtn.disabled = false;
+}
+
+function getImagePath(p) {
+  if (!p.image) return '';
+  const isSubpage = window.location.pathname.includes('/pages/');
+  return isSubpage ? '../' + p.image : p.image;
 }
 
 function renderProducts(containerId, products) {
@@ -164,10 +173,11 @@ function renderProducts(containerId, products) {
   container.innerHTML = products.map(p => {
     const outOfStock = p.stock <= 0;
     const lowStock = p.stock > 0 && p.stock <= 3;
+    const imgPath = getImagePath(p);
     return `
     <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
       <div class="product-image">
-        ${vialSVG}
+        ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy">` : vialSVG}
         ${p.badge === 'Coming Soon' ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>
       <div class="product-info">

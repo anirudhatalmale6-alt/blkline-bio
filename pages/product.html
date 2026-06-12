@@ -111,7 +111,7 @@
 
       document.getElementById('productDetail').innerHTML = `
         <div class="product-detail-image fade-up" ${outOfStock ? 'style="opacity:.5"' : ''}>
-          ${vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
+          ${product.image ? `<img src="../${product.image}" alt="${product.name}">` : vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
         </div>
         <div class="product-detail-info fade-up">
           <div class="category">${product.category}</div>
