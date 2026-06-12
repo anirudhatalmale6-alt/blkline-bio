@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -251,7 +252,7 @@
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
 
-    const CHECKOUT_API = 'http://167.235.196.123:3001';
+    const stripe = Stripe(STRIPE_PK);
 
     function payWithStripe() {
       const btn = document.getElementById('stripePayBtn');
@@ -260,7 +261,7 @@
       btn.disabled = true;
       btn.textContent = 'Redirecting to payment...';
 
-      const items = [];
+      const lineItems = [];
       for (const item of cart) {
         const product = PRODUCTS.find(p => p.id === item.id);
         if (!product || !product.stripePriceId) {
@@ -270,31 +271,22 @@
           btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
           return;
         }
-        items.push({ p: product.stripePriceId, q: item.qty });
+        lineItems.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
-      fetch(`${CHECKOUT_API}/create-checkout-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lineItems: items.map(i => ({ price: i.p, quantity: i.q })),
-          successUrl: window.location.origin + '/pages/success.html',
-          cancelUrl: window.location.href
-        })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error(data.error || 'Payment failed');
+      stripe.redirectToCheckout({
+        lineItems: lineItems,
+        mode: 'payment',
+        successUrl: window.location.origin + '/pages/success.html',
+        cancelUrl: window.location.href,
+        shippingAddressCollection: { allowedCountries: ['AU'] },
+      }).then(function(result) {
+        if (result.error) {
+          errEl.textContent = result.error.message;
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
         }
-      })
-      .catch(err => {
-        errEl.textContent = err.message || 'Something went wrong. Please try bank transfer.';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
       });
     }
 
