@@ -36,6 +36,7 @@ const PRODUCTS = [
   // ========== SUPPLIES ==========
   { id: 17, name: 'Bac Water 3ml', category: 'Supplies', price: 10, currency: 'AUD', stock: 5, stripePriceId: 'price_1ThQ2fGuF9J8lg77UgU13BZW', image: 'images/products/bac-water-3ml.jpg', desc: 'Bacteriostatic water for reconstitution. Contains 0.9% benzyl alcohol preservative.', specs: { 'Volume': '3ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
   { id: 18, name: 'Bac Water 10ml', category: 'Supplies', price: 15, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThQ2cGuF9J8lg77H2EUKglQ', image: 'images/products/bac-water-10ml.jpg', desc: 'Bacteriostatic water for reconstitution. Larger volume for multiple uses.', specs: { 'Volume': '10ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
+  { id: 20, name: 'Prep Pack', category: 'Supplies', price: 10, currency: 'AUD', stock: 20, stripePriceId: 'price_1ThRW2GuF9J8lg77VqqfVWV3', image: 'images/products/prep-pack.jpg', desc: '10x alcohol & chlorhexidine prep pads + 10x insulin syringes. Everything you need for research preparation.', specs: { 'Contents': '10 Prep Pads + 10 Syringes', 'Prep Pads': '70% Alcohol & 2% Chlorhexidine', 'Syringes': 'Insulin Type', 'Sterile': 'Yes' } },
 ];
 
 let cart = JSON.parse(localStorage.getItem('blkline_cart') || '[]');
