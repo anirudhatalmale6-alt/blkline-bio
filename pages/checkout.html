@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
-  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -252,7 +251,13 @@
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
 
-    const stripe = Stripe(STRIPE_PK);
+    const CHECKOUT_API = 'http://167.235.196.123:3001';
+
+    function resetPayBtn() {
+      const btn = document.getElementById('stripePayBtn');
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
+    }
 
     function payWithStripe() {
       const btn = document.getElementById('stripePayBtn');
@@ -261,33 +266,29 @@
       btn.disabled = true;
       btn.textContent = 'Redirecting to payment...';
 
-      const lineItems = [];
+      const items = [];
       for (const item of cart) {
         const product = PRODUCTS.find(p => p.id === item.id);
         if (!product || !product.stripePriceId) {
           errEl.textContent = `Payment not available for ${item.name}. Please use bank transfer.`;
           errEl.style.display = 'block';
-          btn.disabled = false;
-          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
+          resetPayBtn();
           return;
         }
-        lineItems.push({ price: product.stripePriceId, quantity: item.qty });
+        items.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
-      stripe.redirectToCheckout({
-        lineItems: lineItems,
-        mode: 'payment',
-        successUrl: window.location.origin + '/pages/success.html',
-        cancelUrl: window.location.href,
-        shippingAddressCollection: { allowedCountries: ['AU'] },
-      }).then(function(result) {
-        if (result.error) {
-          errEl.textContent = result.error.message;
-          errEl.style.display = 'block';
-          btn.disabled = false;
-          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
-        }
-      });
+      const encoded = btoa(JSON.stringify(items.map(i => ({p:i.price,q:i.quantity}))));
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = CHECKOUT_API + '/checkout';
+      form.style.display = 'none';
+      const addField = (n, v) => { const i = document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
+      addField('items', encoded);
+      addField('success', window.location.origin + '/pages/success.html');
+      addField('cancel', window.location.href);
+      document.body.appendChild(form);
+      form.submit();
     }
 
     function submitOrder(e) {
