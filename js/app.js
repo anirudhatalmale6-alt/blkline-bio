@@ -1,5 +1,5 @@
 const WHATSAPP_NUMBER = '61494749909';
-const STRIPE_PK = 'pk_test_51ThGt3KISinptghanMNtvMks4swvk4HkkwF68aOxMBGhdiU6znXkx63Pls2xWJvsfpUG3qkUfRPYQwTVuu9Iwf9P00Czk6Jnkb';
+const STRIPE_PK = 'pk_live_51ThGscGuF9J8lg77XDgADgprKDcOLIrYK2XI8W9BrHFfH5CP49O9D4s3idRu6BFYO9DgTxyIjIlgS2GuDKsqjetM00GxrmBOaz';
 
 // =============================================
 // PRODUCT DATA - Edit stock numbers here to
@@ -9,8 +9,8 @@ const STRIPE_PK = 'pk_test_51ThGt3KISinptghanMNtvMks4swvk4HkkwF68aOxMBGhdiU6znXk
 // =============================================
 const PRODUCTS = [
   // ========== WEIGHT LOSS ==========
-  { id: 1, name: 'Retatrutide 10mg', category: 'Weight Loss', price: 90, currency: 'AUD', stock: 10, badge: 'Popular', stripePriceId: 'price_1ThHvQKISinptghaz1uIGLi7', desc: 'Triple agonist targeting GLP-1, GIP, and glucagon receptors. Advanced metabolic research compound.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvRKISinptghaYw2wqJCN', desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 1, name: 'Retatrutide 10mg', category: 'Weight Loss', price: 90, currency: 'AUD', stock: 10, badge: 'Popular', stripePriceId: 'price_1ThHvQKISinptghaz1uIGLi7', image: 'images/products/retatrutide-10mg.jpg', desc: 'Triple agonist targeting GLP-1, GIP, and glucagon receptors. Advanced metabolic research compound.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvRKISinptghaYw2wqJCN', image: 'images/products/retatrutide-20mg.jpg', desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 3, name: 'Tirzepatide 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Dual GLP-1/GIP receptor agonist. Next-generation metabolic research peptide.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 4, name: 'Tesamorelin 10mg', category: 'Weight Loss', price: 0, currency: 'AUD', stock: 0, badge: 'Coming Soon', desc: 'Growth hormone releasing factor analog. Supports visceral fat reduction research.', specs: { 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
   { id: 5, name: '5-Amino-1MQ 5mg', category: 'Weight Loss', price: 40, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvSKISinptghaeGmLzPfA', image: 'images/products/5-amino-1mq.jpg', desc: 'NNMT inhibitor. Supports cellular energy metabolism and fat oxidation research.', specs: { 'Purity': '98%+', 'Amount': '5mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
@@ -31,11 +31,11 @@ const PRODUCTS = [
   { id: 14, name: 'Melanotan II 10mg', category: 'Tanning', price: 50, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvVKISinptgha6BJA7vTL', image: 'images/products/melanotan-2.jpg', desc: 'Melanocortin receptor agonist. Supports tanning response and melanin production research.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== COGNITIVE ==========
-  { id: 15, name: 'Selank', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvWKISinptghaa6gEMo8d', desc: 'Synthetic tuftsin analog. Supports anxiolytic, nootropic, and immune modulation research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 16, name: 'Semax', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvXKISinptghasoSfXjqy', desc: 'Synthetic ACTH analog. Supports cognitive enhancement, neuroprotection, and focus research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 15, name: 'Selank', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvWKISinptghaa6gEMo8d', image: 'images/products/selank.jpg', desc: 'Synthetic tuftsin analog. Supports anxiolytic, nootropic, and immune modulation research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 16, name: 'Semax', category: 'Cognitive', price: 60, currency: 'AUD', stock: 10, stripePriceId: 'price_1ThHvXKISinptghasoSfXjqy', image: 'images/products/semax.jpg', desc: 'Synthetic ACTH analog. Supports cognitive enhancement, neuroprotection, and focus research.', specs: { 'Purity': '98%+', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== SUPPLIES ==========
-  { id: 17, name: 'Bac Water 3ml', category: 'Supplies', price: 10, currency: 'AUD', stock: 20, stripePriceId: 'price_1ThHvYKISinptghaZd5ZdNfl', desc: 'Bacteriostatic water for reconstitution. Contains 0.9% benzyl alcohol preservative.', specs: { 'Volume': '3ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
+  { id: 17, name: 'Bac Water 3ml', category: 'Supplies', price: 10, currency: 'AUD', stock: 20, stripePriceId: 'price_1ThHvYKISinptghaZd5ZdNfl', image: 'images/products/bac-water-3ml.jpg', desc: 'Bacteriostatic water for reconstitution. Contains 0.9% benzyl alcohol preservative.', specs: { 'Volume': '3ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
   { id: 18, name: 'Bac Water 10ml', category: 'Supplies', price: 15, currency: 'AUD', stock: 20, stripePriceId: 'price_1ThHvYKISinptghaFkjIhT7F', desc: 'Bacteriostatic water for reconstitution. Larger volume for multiple uses.', specs: { 'Volume': '10ml', 'Preservative': '0.9% Benzyl Alcohol', 'Storage': 'Room Temperature', 'Sterile': 'Yes' } },
 ];
 
