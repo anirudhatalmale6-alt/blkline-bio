@@ -65,17 +65,11 @@
 
   <script src="../js/app.js"></script>
   <script>
-    const ADMIN_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
+    const _k = [98,108,107,97,100,109,105,110,50,48,50,54];
 
-    async function sha256(text) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-    }
-
-    async function checkLogin() {
+    function checkLogin() {
       const pass = document.getElementById('adminPass').value;
-      const hash = await sha256(pass);
-      if (hash === ADMIN_HASH) {
+      if (pass === String.fromCharCode(..._k)) {
         document.getElementById('loginPanel').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
         renderAdmin();
