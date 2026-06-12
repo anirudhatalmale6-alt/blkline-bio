@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
-  <script src="https://js.stripe.com/v3/"></script>
+  <script>const STRIPE_API = 'https://app.factukey.com/blkline-stripe';</script>
 </head>
 <body>
 
@@ -252,26 +252,25 @@
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
 
-    const stripe = Stripe(STRIPE_PK);
-
     function resetPayBtn() {
       const btn = document.getElementById('stripePayBtn');
       btn.disabled = false;
-      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $${getCartTotal().toFixed(2)} AUD`;
+      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $' + getCartTotal().toFixed(2) + ' AUD';
     }
 
     function payWithStripe() {
-      const btn = document.getElementById('stripePayBtn');
-      const errEl = document.getElementById('stripeError');
+      var btn = document.getElementById('stripePayBtn');
+      var errEl = document.getElementById('stripeError');
       errEl.style.display = 'none';
       btn.disabled = true;
       btn.textContent = 'Redirecting to payment...';
 
-      const lineItems = [];
-      for (const item of cart) {
-        const product = PRODUCTS.find(p => p.id === item.id);
+      var lineItems = [];
+      for (var i = 0; i < cart.length; i++) {
+        var item = cart[i];
+        var product = PRODUCTS.find(function(p) { return p.id === item.id; });
         if (!product || !product.stripePriceId) {
-          errEl.textContent = `Payment not available for ${item.name}. Please use bank transfer.`;
+          errEl.textContent = 'Payment not available for ' + item.name + '. Please use bank transfer.';
           errEl.style.display = 'block';
           resetPayBtn();
           return;
@@ -279,20 +278,27 @@
         lineItems.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
-      stripe.redirectToCheckout({
-        lineItems: lineItems,
-        mode: 'payment',
-        successUrl: window.location.origin + '/pages/success.html',
-        cancelUrl: window.location.href,
-        shippingAddressCollection: { allowedCountries: ['AU'] },
-      }).then(function(result) {
-        if (result.error) {
-          errEl.textContent = result.error.message;
+      fetch(STRIPE_API + '/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lineItems: lineItems,
+          successUrl: window.location.origin + '/pages/success.html',
+          cancelUrl: window.location.href
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          errEl.textContent = data.error || 'Something went wrong. Please try bank transfer.';
           errEl.style.display = 'block';
+          resetPayBtn();
         }
-        resetPayBtn();
-      }).catch(function(err) {
-        errEl.textContent = err.message || 'Something went wrong. Please try bank transfer.';
+      })
+      .catch(function(err) {
+        errEl.textContent = 'Connection error. Please try bank transfer or refresh the page.';
         errEl.style.display = 'block';
         resetPayBtn();
       });
