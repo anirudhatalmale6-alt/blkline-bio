@@ -10,7 +10,7 @@ const STRIPE_PK = 'pk_live_51ThGscGuF9J8lg77XDgADgprKDcOLIrYK2XI8W9BrHFfH5CP49O9
 const PRODUCTS = [
   // ========== WEIGHT LOSS ==========
   { id: 1, name: 'Retatrutide 10mg', category: 'Weight Loss', price: 90, currency: 'AUD', stock: 18, badge: 'Popular', stripePriceId: 'price_1ThQ2ZGuF9J8lg77WpbpGltY', image: 'images/products/retatrutide-10mg.jpg', desc: 'Triple agonist targeting GLP-1, GIP, and glucagon receptors. Advanced metabolic research compound.', specs: { 'Purity': '99%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 15, stripePriceId: 'price_1ThQ2aGuF9J8lg77Z2ZAaEOX', image: 'images/products/retatrutide-20mg.jpg', desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
+  { id: 2, name: 'Retatrutide 20mg', category: 'Weight Loss', price: 140, currency: 'AUD', stock: 13, stripePriceId: 'price_1ThQ2aGuF9J8lg77Z2ZAaEOX', image: 'images/products/retatrutide-20mg.jpg', desc: 'High-dose triple agonist for extended metabolic research protocols.', specs: { 'Purity': '99%+', 'Amount': '20mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 5, name: '5-Amino-1MQ 5mg', category: 'Weight Loss', price: 40, currency: 'AUD', stock: 4, stripePriceId: 'price_1ThQ2cGuF9J8lg77k7JhGDzW', image: 'images/products/5-amino-1mq.jpg', desc: 'NNMT inhibitor. Supports cellular energy metabolism and fat oxidation research.', specs: { 'Purity': '98%+', 'Amount': '5mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
 
   // ========== RECOVERY ==========
@@ -22,7 +22,7 @@ const PRODUCTS = [
   { id: 9, name: 'GHK-Cu 50mg', category: 'Anti-Aging', price: 50, currency: 'AUD', stock: 8, stripePriceId: 'price_1ThQ2eGuF9J8lg77LWY8bq1a', image: 'images/products/ghk-cu-50mg.jpg', desc: 'Copper peptide complex. Supports skin remodeling, collagen synthesis, and wound healing research.', specs: { 'Purity': '98%+', 'Amount': '50mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 19, name: 'GHK-Cu 100mg', category: 'Anti-Aging', price: 90, currency: 'AUD', stock: 9, stripePriceId: 'price_1ThQ2iGuF9J8lg775B4bjNqo', image: 'images/products/ghk-cu-100mg.jpg', desc: 'High-dose copper peptide complex. Double concentration for extended skin remodeling and collagen synthesis research.', specs: { 'Purity': '98%+', 'Amount': '100mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
   { id: 10, name: 'Glutathione 600mg', category: 'Anti-Aging', price: 70, currency: 'AUD', stock: 4, stripePriceId: 'price_1ThQ2YGuF9J8lg77rXKhmvEX', image: 'images/products/glutathione.jpg', desc: 'Master antioxidant. Supports detoxification, immune function, and cellular protection research.', specs: { 'Purity': '99%+', 'Amount': '600mg', 'Form': 'Lyophilized Powder', 'Storage': '2-8°C', 'Research Use': 'In Vitro' } },
-  { id: 11, name: 'NAD+ 500mg', category: 'Anti-Aging', price: 70, currency: 'AUD', stock: 5, stripePriceId: 'price_1ThQFVGuF9J8lg77B7VqW59P', image: 'images/products/nad-plus.jpg', desc: 'Nicotinamide adenine dinucleotide. Essential coenzyme for cellular energy and longevity research.', specs: { 'Purity': '99%+', 'Amount': '500mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
+  { id: 11, name: 'NAD+ 500mg', category: 'Anti-Aging', price: 70, currency: 'AUD', stock: 4, stripePriceId: 'price_1ThQFVGuF9J8lg77B7VqW59P', image: 'images/products/nad-plus.jpg', desc: 'Nicotinamide adenine dinucleotide. Essential coenzyme for cellular energy and longevity research.', specs: { 'Purity': '99%+', 'Amount': '500mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
   { id: 12, name: 'MOTS-c 10mg', category: 'Anti-Aging', price: 80, currency: 'AUD', stock: 5, stripePriceId: 'price_1ThQFWGuF9J8lg77XBC3i41x', image: 'images/products/mots-c.jpg', desc: 'Mitochondrial-derived peptide. Supports metabolic homeostasis and exercise mimetic research.', specs: { 'Purity': '98%+', 'Amount': '10mg', 'Form': 'Lyophilized Powder', 'Storage': '-20°C', 'Research Use': 'In Vitro' } },
 
   // ========== TANNING ==========
@@ -231,18 +231,36 @@ function observeFadeUp() {
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 }
 
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  updateCartCount();
-  observeFadeUp();
+const STOCK_API = 'https://app.factukey.com/blkline-stripe/stock';
 
+function applyLiveStock(stockData) {
+  PRODUCTS.forEach(p => {
+    if (stockData[p.name] !== undefined) p.stock = stockData[p.name];
+  });
+}
+
+function renderAllProducts() {
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
     renderProducts('featuredProducts', PRODUCTS.filter(p => p.stock > 0).slice(0, 4));
   }
-
   const allContainer = document.getElementById('allProducts');
   if (allContainer) {
     renderProducts('allProducts', PRODUCTS);
   }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  updateCartCount();
+  observeFadeUp();
+  renderAllProducts();
+
+  fetch(STOCK_API)
+    .then(r => r.json())
+    .then(stockData => {
+      applyLiveStock(stockData);
+      renderAllProducts();
+    })
+    .catch(() => {});
 });

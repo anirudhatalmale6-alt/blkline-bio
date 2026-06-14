@@ -49,7 +49,7 @@
     </div>
 
     <div class="admin-note">
-      How it works: Edit stock numbers below, click Save Changes, then send me the downloaded file and I'll update the live site within minutes.
+      Stock updates automatically when customers order. You can also manually adjust quantities below and save directly - changes go live instantly.
     </div>
 
     <table class="admin-table">
@@ -69,36 +69,51 @@
 
   <div class="save-bar" id="saveBar">
     <button onclick="saveChanges()">Save Changes</button>
-    <div class="save-msg" id="saveMsg">Changes saved! Send the downloaded file to Anirudha to update the live site.</div>
+    <div class="save-msg" id="saveMsg"></div>
   </div>
 
   <script src="../js/app.js"></script>
   <script>
-    const _k = [98,108,107,97,100,109,105,110,50,48,50,54];
+    var STOCK_API_URL = 'https://app.factukey.com/blkline-stripe';
+    var ADMIN_KEY = 'blkadmin2026';
+    var _k = [98,108,107,97,100,109,105,110,50,48,50,54];
+    var liveStock = {};
 
     function checkLogin() {
-      const pass = document.getElementById('adminPass').value;
-      if (pass === String.fromCharCode(..._k)) {
+      var pass = document.getElementById('adminPass').value;
+      if (pass === String.fromCharCode.apply(null, _k)) {
         document.getElementById('loginPanel').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
-        renderAdmin();
+        loadLiveStock();
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
     }
 
+    function loadLiveStock() {
+      fetch(STOCK_API_URL + '/stock')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          liveStock = data;
+          applyLiveStock(data);
+          renderAdmin();
+        })
+        .catch(function() { renderAdmin(); });
+    }
+
     function renderAdmin() {
-      const tbody = document.getElementById('productRows');
-      tbody.innerHTML = PRODUCTS.map(p => {
-        const statusClass = p.stock <= 0 ? 'out' : p.stock <= 3 ? 'low' : '';
-        const statusText = p.stock <= 0 ? 'Out of Stock' : p.stock <= 3 ? 'Low Stock' : 'In Stock';
-        return `<tr>
-          <td class="product-name">${p.name}</td>
-          <td style="color:var(--silver-dark)">${p.category}</td>
-          <td>$${p.price.toFixed(2)}</td>
-          <td><input type="number" min="0" value="${p.stock}" data-id="${p.id}" onchange="markChanged()"></td>
-          <td class="${statusClass}">${statusText}</td>
-        </tr>`;
+      var tbody = document.getElementById('productRows');
+      tbody.innerHTML = PRODUCTS.map(function(p) {
+        var stock = liveStock[p.name] !== undefined ? liveStock[p.name] : p.stock;
+        var statusClass = stock <= 0 ? 'out' : stock <= 3 ? 'low' : '';
+        var statusText = stock <= 0 ? 'Out of Stock' : stock <= 3 ? 'Low Stock' : 'In Stock';
+        return '<tr>' +
+          '<td class="product-name">' + p.name + '</td>' +
+          '<td style="color:var(--silver-dark)">' + p.category + '</td>' +
+          '<td>$' + p.price.toFixed(2) + '</td>' +
+          '<td><input type="number" min="0" value="' + stock + '" data-name="' + p.name + '" onchange="markChanged()"></td>' +
+          '<td class="' + statusClass + '">' + statusText + '</td>' +
+        '</tr>';
       }).join('');
     }
 
@@ -108,36 +123,61 @@
     }
 
     function saveChanges() {
-      const updates = {};
-      document.querySelectorAll('.admin-table input[type="number"]').forEach(input => {
-        const id = parseInt(input.dataset.id);
-        const product = PRODUCTS.find(p => p.id === id);
-        const newStock = parseInt(input.value) || 0;
-        if (product && product.stock !== newStock) {
-          updates[product.name] = { from: product.stock, to: newStock };
+      var updates = {};
+      var hasChanges = false;
+      document.querySelectorAll('.admin-table input[type="number"]').forEach(function(input) {
+        var name = input.dataset.name;
+        var newStock = parseInt(input.value) || 0;
+        var currentStock = liveStock[name] !== undefined ? liveStock[name] : 0;
+        if (currentStock !== newStock) {
+          updates[name] = newStock;
+          hasChanges = true;
         }
       });
 
-      if (Object.keys(updates).length === 0) {
+      if (!hasChanges) {
         document.getElementById('saveMsg').textContent = 'No changes detected.';
+        document.getElementById('saveMsg').style.color = '#e8a838';
         document.getElementById('saveMsg').style.display = 'block';
         return;
       }
 
-      let text = 'BLKLINE BIO - Stock Update\n';
-      text += 'Date: ' + new Date().toLocaleDateString('en-AU') + '\n\n';
-      for (const [name, change] of Object.entries(updates)) {
-        text += `${name}: ${change.from} → ${change.to}\n`;
-      }
+      var saveBtn = document.querySelector('.save-bar button');
+      saveBtn.textContent = 'Saving...';
+      saveBtn.disabled = true;
 
-      const blob = new Blob([text], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'stock-update-' + new Date().toISOString().slice(0,10) + '.txt';
-      a.click();
-
-      document.getElementById('saveMsg').textContent = 'Changes saved! Send the downloaded file to Anirudha to update the live site.';
-      document.getElementById('saveMsg').style.display = 'block';
+      fetch(STOCK_API_URL + '/stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: ADMIN_KEY, updates: updates })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          liveStock = data.stock;
+          applyLiveStock(data.stock);
+          renderAdmin();
+          document.getElementById('saveMsg').textContent = 'Stock updated! Changes are live on the website now.';
+          document.getElementById('saveMsg').style.color = '#25D366';
+          document.getElementById('saveMsg').style.display = 'block';
+          setTimeout(function() {
+            document.getElementById('saveBar').classList.remove('show');
+          }, 3000);
+        } else {
+          document.getElementById('saveMsg').textContent = 'Error saving: ' + (data.error || 'unknown');
+          document.getElementById('saveMsg').style.color = '#e74c3c';
+          document.getElementById('saveMsg').style.display = 'block';
+        }
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.disabled = false;
+      })
+      .catch(function(err) {
+        document.getElementById('saveMsg').textContent = 'Connection error. Try again.';
+        document.getElementById('saveMsg').style.color = '#e74c3c';
+        document.getElementById('saveMsg').style.display = 'block';
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.disabled = false;
+      });
     }
   </script>
 </body>
