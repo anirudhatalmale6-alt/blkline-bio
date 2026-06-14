@@ -24,6 +24,10 @@
     .save-bar button:hover{background:var(--white)}
     .save-msg{color:#25D366;font-size:.8rem;margin-top:8px;display:none}
     .admin-note{background:var(--dark2);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;font-size:.8rem;color:var(--white-muted);line-height:1.6}
+    .admin-nav{display:flex;gap:12px;margin-bottom:24px}
+    .admin-nav a{padding:10px 20px;font-family:var(--font-display);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;background:var(--dark3);color:var(--silver-dark);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);text-decoration:none;transition:var(--transition)}
+    .admin-nav a:hover{border-color:rgba(192,192,192,.2)}
+    .admin-nav a.active{background:var(--silver);color:var(--black);border-color:var(--silver)}
   </style>
 </head>
 <body>
@@ -38,6 +42,11 @@
   <div class="admin-panel" id="adminPanel" style="display:none">
     <h1 style="font-family:var(--font-display);font-size:1.4rem;letter-spacing:4px;text-transform:uppercase;color:var(--white);margin-bottom:8px">Stock Manager</h1>
     <p style="color:var(--silver-dark);font-size:.8rem;margin-bottom:24px">Update stock quantities below. Changes are saved to a file you can send me to apply.</p>
+
+    <div class="admin-nav">
+      <a href="orders.html">Orders</a>
+      <a href="admin.html" class="active">Stock Manager</a>
+    </div>
 
     <div class="admin-note">
       How it works: Edit stock numbers below, click Save Changes, then send me the downloaded file and I'll update the live site within minutes.
