@@ -185,7 +185,7 @@ function renderProducts(containerId, products) {
     <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
       <div class="product-image">
         ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy">` : vialSVG}
-        ${p.badge === 'Coming Soon' ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+        ${p.badge === 'Coming Soon' && outOfStock ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.badge && p.badge !== 'Coming Soon' ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>
       <div class="product-info">
         <div class="product-category">${p.category}</div>
