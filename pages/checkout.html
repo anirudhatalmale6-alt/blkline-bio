@@ -150,6 +150,10 @@
           <div class="order-summary">
             <h3>Order Summary</h3>
             <div class="order-items" id="orderItems"></div>
+            <div class="order-shipping" id="shippingLine" style="display:flex;justify-content:space-between;padding:10px 0;font-size:.85rem;border-top:1px solid rgba(192,192,192,.06)">
+              <span style="color:var(--silver-dark)">Shipping</span>
+              <span id="shippingCost" style="color:var(--white)">Free</span>
+            </div>
             <div class="order-total">
               <span>Total</span>
               <span id="orderTotal">$0.00</span>
@@ -167,8 +171,8 @@
           </div>
 
           <div style="margin-top:16px;padding:16px;background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.15);border-radius:var(--radius);text-align:center">
-            <p style="font-size:.75rem;letter-spacing:1px;color:var(--silver-dark)">FREE starter pack with every order</p>
-            <p style="font-size:.8rem;color:var(--white-dim);margin-top:4px">3ml BAC Water + 10 syringes + 10 prep pads</p>
+            <p style="font-size:.75rem;letter-spacing:1px;color:var(--silver-dark)">FREE SHIPPING on orders over $50</p>
+            <p style="font-size:.8rem;color:var(--white-dim);margin-top:4px">Orders under $50 incur a $10 shipping fee</p>
           </div>
         </div>
       </div>
@@ -247,7 +251,14 @@
           <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
         </div>
       `).join('');
-      const total = getCartTotal();
+      const subtotal = getCartTotal();
+      const shippingFee = subtotal >= 50 ? 0 : 10;
+      const total = subtotal + shippingFee;
+      const shippingEl = document.getElementById('shippingCost');
+      if (shippingEl) {
+        shippingEl.textContent = shippingFee === 0 ? 'Free' : '$10.00';
+        if (shippingFee === 0) shippingEl.style.color = '#25D366';
+      }
       totalEl.textContent = `$${total.toFixed(2)} AUD`;
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
     });
@@ -278,11 +289,13 @@
         lineItems.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
+      var totalCents = Math.round(getCartTotal() * 100);
       fetch(STRIPE_API + '/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lineItems: lineItems,
+          orderTotal: totalCents,
           successUrl: window.location.origin + '/pages/success.html',
           cancelUrl: window.location.href
         })
