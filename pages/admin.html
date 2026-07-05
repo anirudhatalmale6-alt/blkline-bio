@@ -579,9 +579,10 @@
       tbody.innerHTML = orders.slice(0, 50).map(function(o) {
         var date = o.date ? new Date(o.date).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
         var items = o.items.map(function(i) { return i.realName + ' x' + i.quantity; }).join(', ');
-        var shipTo = '';
+        var shipTo = '-';
         if (o.shipping && o.shipping.address) {
-          shipTo = [o.shipping.name, o.shipping.address.city, o.shipping.address.state].filter(Boolean).join(', ');
+          var a = o.shipping.address;
+          shipTo = [o.shipping.name, a.line1, a.line2, a.city, a.state, a.postal_code].filter(Boolean).join(', ');
         } else if (o.shipping && o.shipping.name) {
           shipTo = o.shipping.name;
         }
@@ -591,7 +592,7 @@
           '<td>' + (o.customerName || o.customerEmail || '-') + '</td>' +
           '<td style="font-size:.8rem;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + items + '</td>' +
           '<td style="font-weight:600">$' + o.total + '</td>' +
-          '<td style="font-size:.8rem;color:var(--silver-dark)">' + (shipTo || '-') + '</td>' +
+          '<td style="font-size:.8rem;color:var(--silver-dark);white-space:normal;min-width:180px">' + shipTo + '</td>' +
         '</tr>';
       }).join('');
     }
