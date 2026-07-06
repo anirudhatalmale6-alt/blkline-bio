@@ -582,9 +582,7 @@
         var shipTo = '-';
         if (o.shipping && o.shipping.address) {
           var a = o.shipping.address;
-          shipTo = [o.shipping.name, a.line1, a.line2, a.city, a.state, a.postal_code].filter(Boolean).join(', ');
-        } else if (o.shipping && o.shipping.name) {
-          shipTo = o.shipping.name;
+          shipTo = [a.line1, a.line2, a.city, a.state, a.postal_code].filter(Boolean).join(', ');
         }
         return '<tr>' +
           '<td style="font-family:var(--font-display);letter-spacing:1px;font-size:.75rem">' + o.id + '</td>' +
