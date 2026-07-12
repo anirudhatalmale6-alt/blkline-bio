@@ -171,8 +171,8 @@
           </div>
 
           <div style="margin-top:16px;padding:16px;background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.15);border-radius:var(--radius);text-align:center">
-            <p style="font-size:.75rem;letter-spacing:1px;color:var(--silver-dark)">FREE SHIPPING on orders over $50</p>
-            <p style="font-size:.8rem;color:var(--white-dim);margin-top:4px">Orders under $50 incur a $10 shipping fee</p>
+            <p style="font-size:.75rem;letter-spacing:1px;color:var(--silver-dark)">FREE SHIPPING on orders over $250</p>
+            <p style="font-size:.8rem;color:var(--white-dim);margin-top:4px">Standard shipping $10 &nbsp;|&nbsp; Express $15 &mdash; choose at checkout</p>
           </div>
         </div>
       </div>
@@ -252,12 +252,12 @@
         </div>
       `).join('');
       const subtotal = getCartTotal();
-      const shippingFee = subtotal >= 50 ? 0 : 10;
+      const shippingFee = subtotal >= 250 ? 0 : 10;
       const total = subtotal + shippingFee;
       const shippingEl = document.getElementById('shippingCost');
       if (shippingEl) {
         shippingEl.textContent = shippingFee === 0 ? 'Free' : '$10.00';
-        if (shippingFee === 0) shippingEl.style.color = '#25D366';
+        shippingEl.style.color = shippingFee === 0 ? '#25D366' : 'var(--white)';
       }
       totalEl.textContent = `$${total.toFixed(2)} AUD`;
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
