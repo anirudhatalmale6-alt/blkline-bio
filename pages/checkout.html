@@ -238,6 +238,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Shipping depends on product categories, so wait for PRODUCTS to load.
+      PRODUCTS_READY.then(() => {
       const itemsEl = document.getElementById('orderItems');
       const totalEl = document.getElementById('orderTotal');
       const stripeTotalEl = document.getElementById('stripeTotal');
@@ -267,6 +269,7 @@
       }
       totalEl.textContent = `$${total.toFixed(2)} AUD`;
       if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
+      });
     });
 
     function resetPayBtn() {

@@ -218,23 +218,24 @@ function renderAllProducts() {
   }
 }
 
+// Kicked off at load, not on DOMContentLoaded, so pages can await PRODUCTS before
+// reading it. Anything depending on PRODUCTS (e.g. checkout's shipping rules) must
+// wait on this — otherwise PRODUCTS is still empty and the lookup silently fails.
+var PRODUCTS_READY = fetch(API_BASE + '/products')
+  .then(r => r.json())
+  .then(products => {
+    PRODUCTS = products;
+    PRODUCTS.forEach(p => { if (p.stock === undefined) p.stock = 0; });
+    return fetch(API_BASE + '/stock');
+  })
+  .then(r => r.json())
+  .then(stockData => {
+    applyLiveStock(stockData);
+  })
+  .catch(() => {});
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
   observeFadeUp();
-
-  fetch(API_BASE + '/products')
-    .then(r => r.json())
-    .then(products => {
-      PRODUCTS = products;
-      PRODUCTS.forEach(p => { if (p.stock === undefined) p.stock = 0; });
-      return fetch(API_BASE + '/stock');
-    })
-    .then(r => r.json())
-    .then(stockData => {
-      applyLiveStock(stockData);
-      renderAllProducts();
-    })
-    .catch(() => {
-      renderAllProducts();
-    });
+  PRODUCTS_READY.then(() => renderAllProducts());
 });
