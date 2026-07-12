@@ -173,6 +173,7 @@
           <div style="margin-top:16px;padding:16px;background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.15);border-radius:var(--radius);text-align:center">
             <p style="font-size:.75rem;letter-spacing:1px;color:var(--silver-dark)">FREE SHIPPING on orders over $250</p>
             <p style="font-size:.8rem;color:var(--white-dim);margin-top:4px">Standard shipping $10 &nbsp;|&nbsp; Express $15 &mdash; choose at checkout</p>
+            <p style="font-size:.75rem;color:var(--white-muted);margin-top:6px">Orders containing a vial case ship at a flat $15 rate</p>
           </div>
         </div>
       </div>
@@ -252,11 +253,16 @@
         </div>
       `).join('');
       const subtotal = getCartTotal();
-      const shippingFee = subtotal >= 250 ? 0 : 10;
+      // Bulky items (Accessories) always ship at the flat $15 rate, no free shipping.
+      const hasFlatItem = cart.some(item => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        return p && p.category === 'Accessories';
+      });
+      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
       const total = subtotal + shippingFee;
       const shippingEl = document.getElementById('shippingCost');
       if (shippingEl) {
-        shippingEl.textContent = shippingFee === 0 ? 'Free' : '$10.00';
+        shippingEl.textContent = shippingFee === 0 ? 'Free' : `$${shippingFee.toFixed(2)}`;
         shippingEl.style.color = shippingFee === 0 ? '#25D366' : 'var(--white)';
       }
       totalEl.textContent = `$${total.toFixed(2)} AUD`;
