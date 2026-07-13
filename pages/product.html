@@ -96,10 +96,14 @@
     let detailQty = 1;
     const params = new URLSearchParams(window.location.search);
     const productId = parseInt(params.get('id'));
-    const product = PRODUCTS.find(p => p.id === productId);
+    let product = null;
 
     function goToProduct(id) { window.location.href = `product.html?id=${id}`; }
 
+    // PRODUCTS is fetched asynchronously in app.js — reading it before PRODUCTS_READY
+    // resolves gives an empty array and renders a blank page.
+    PRODUCTS_READY.then(() => {
+    product = PRODUCTS.find(p => p.id === productId);
     if (product) {
       document.title = `${product.name} — BLKLINE BIO`;
       const specsHtml = product.specs ? Object.entries(product.specs).map(([k,v]) =>
@@ -111,7 +115,7 @@
 
       document.getElementById('productDetail').innerHTML = `
         <div class="product-detail-image fade-up" ${outOfStock ? 'style="opacity:.5"' : ''}>
-          ${product.image ? `<img src="../${product.image}" alt="${product.name}">` : vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
+          ${product.image ? `<img src="${getImagePath(product)}" alt="${product.name}">` : vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
         </div>
         <div class="product-detail-info fade-up">
           <div class="category">${product.category}</div>
@@ -149,6 +153,7 @@
       }
       observeFadeUp();
     }
+    });
 
     function changeQty(d) {
       const newQty = detailQty + d;
