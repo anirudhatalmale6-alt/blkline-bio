@@ -206,10 +206,12 @@ function applyLiveStock(stockData) {
 function renderAllProducts() {
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
-    // Anything badged "Best Seller" is pinned to the front of the featured row.
+    // Anything badged "Best Seller" is pinned to the front of the featured row, oldest
+    // first, so adding a new one appends rather than displacing the existing lead.
     const inStock = PRODUCTS.filter(p => p.stock > 0);
     const isBestSeller = p => (p.badge || '').toLowerCase().includes('best');
-    const featured = inStock.filter(isBestSeller).concat(inStock.filter(p => !isBestSeller(p)));
+    const best = inStock.filter(isBestSeller).sort((a, b) => a.id - b.id);
+    const featured = best.concat(inStock.filter(p => !isBestSeller(p)));
     renderProducts('featuredProducts', featured.slice(0, 4));
   }
   const allContainer = document.getElementById('allProducts');
