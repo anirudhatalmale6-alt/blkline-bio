@@ -69,6 +69,7 @@
     .order-date{font-size:.75rem;color:var(--silver-dark)}
     .order-status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;font-family:var(--font-display)}
     .order-status.paid{background:rgba(37,211,102,.12);color:#25D366}
+    .order-status.pending{background:rgba(232,168,56,.14);color:#e8a838}
     .order-customer{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:.8rem}
     .order-customer .label{color:var(--silver-dark);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:2px}
     .order-customer .value{color:var(--white)}
@@ -592,7 +593,11 @@
 
     function renderStats(orders) {
       var totalOrders = orders.length;
-      var totalRevenue = orders.reduce(function(sum, o) { return sum + parseFloat(o.total); }, 0);
+      // Only count confirmed (paid) orders as revenue — bank-transfer orders sit at
+      // "awaiting payment" until the money actually arrives, so they shouldn't inflate it.
+      var totalRevenue = orders.reduce(function(sum, o) {
+        return o.status === 'paid' ? sum + parseFloat(o.total) : sum;
+      }, 0);
       var totalItems = orders.reduce(function(sum, o) {
         return sum + o.items.reduce(function(s, i) { return s + i.quantity; }, 0);
       }, 0);
@@ -638,7 +643,7 @@
             '<div><span class="order-id">' + order.id + '</span></div>' +
             '<div style="display:flex;align-items:center;gap:10px">' +
               '<span class="order-date">' + dateStr + '</span>' +
-              '<span class="order-status ' + order.status + '">' + order.status + '</span>' +
+              '<span class="order-status ' + (order.status === 'paid' ? 'paid' : 'pending') + '">' + order.status + '</span>' +
             '</div>' +
           '</div>' +
           customerHtml +

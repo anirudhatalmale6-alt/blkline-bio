@@ -334,10 +334,49 @@
 
       document.getElementById('orderNumber').textContent = orderNum;
 
+      // Match the order-summary maths so the recorded/quoted amount includes shipping.
+      const subtotal = getCartTotal();
+      const hasFlatItem = cart.some(item => {
+        const p = PRODUCTS.find(pr => pr.id === item.id);
+        return p && p.category === 'Accessories';
+      });
+      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
+      const total = subtotal + shippingFee;
+      const fullName = `${data.get('firstName')} ${data.get('lastName')}`.trim();
+
+      // Record the order server-side so it lands in the admin Orders tab and fires a
+      // notification email — the customer no longer has to send details manually for
+      // the store owner to know the order exists.
+      const orderPayload = {
+        id: orderNum,
+        customerName: fullName,
+        customerEmail: data.get('email') || '',
+        customerPhone: data.get('phone') || '',
+        shipping: {
+          name: fullName,
+          address: {
+            line1: data.get('address') || '',
+            city: data.get('city') || '',
+            state: data.get('state') || '',
+            postal_code: data.get('postcode') || '',
+            country: data.get('country') || 'Australia'
+          }
+        },
+        items: cart.map(i => ({ realName: i.name, quantity: i.qty, amount: (i.price * i.qty).toFixed(2) })),
+        total: total.toFixed(2),
+        currency: 'AUD',
+        notes: data.get('notes') || ''
+      };
+      fetch(API_BASE + '/bank-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload)
+      }).catch(() => {});
+
       const orderText = `New Order ${orderNum}%0A` +
-        `Name: ${data.get('firstName')} ${data.get('lastName')}%0A` +
+        `Name: ${fullName}%0A` +
         `Items: ${cart.map(i => i.name + ' x' + i.qty).join(', ')}%0A` +
-        `Total: $${getCartTotal().toFixed(2)} AUD%0A` +
+        `Total: $${total.toFixed(2)} AUD (incl. shipping)%0A` +
         `Address: ${data.get('address')}, ${data.get('city')} ${data.get('state')} ${data.get('postcode')}`;
 
       const waNum = WHATSAPP_NUMBER || '0000000000';
