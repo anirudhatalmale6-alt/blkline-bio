@@ -82,6 +82,8 @@
     .order-total .amount{color:var(--silver);font-family:var(--font-display);letter-spacing:1px;font-size:.95rem}
     .order-shipping{margin-top:12px;padding:12px;background:var(--dark3);border-radius:var(--radius);font-size:.78rem;color:var(--white-muted)}
     .order-shipping .label{color:var(--silver-dark);font-size:.65rem;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:4px}
+    .order-notes{margin-top:12px;padding:12px;background:rgba(232,168,56,.08);border:1px solid rgba(232,168,56,.25);border-radius:var(--radius);font-size:.82rem;color:#f0d9a8}
+    .order-notes .label{color:#e8a838;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:4px}
     .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
     .stat-card{background:var(--dark2);border:1px solid rgba(192,192,192,.08);border-radius:var(--radius);padding:20px;text-align:center}
     .stat-value{font-family:var(--font-display);font-size:1.4rem;letter-spacing:2px;color:var(--white);margin-bottom:4px}
@@ -630,6 +632,10 @@
           shippingHtml = '<div class="order-shipping"><div class="label">Ship To</div>' + parts.join(', ') + '</div>';
         }
 
+        var notesHtml = order.notes
+          ? '<div class="order-notes"><div class="label">Notes</div>' + order.notes + '</div>'
+          : '';
+
         var customerHtml = '<div class="order-customer">';
         customerHtml += '<div><div class="label">Customer</div><div class="value">' + (order.customerName || '-') + '</div></div>';
         customerHtml += '<div><div class="label">Email</div><div class="value">' + (order.customerEmail || '-') + '</div></div>';
@@ -650,6 +656,7 @@
           '<div class="order-items">' + itemsHtml + '</div>' +
           '<div class="order-total"><span class="label">Total</span><span class="amount">$' + order.total + ' ' + order.currency + '</span></div>' +
           shippingHtml +
+          notesHtml +
         '</div>';
       }).join('');
     }
