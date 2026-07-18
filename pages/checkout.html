@@ -154,17 +154,21 @@
               <span style="color:var(--silver-dark)">Shipping</span>
               <span id="shippingCost" style="color:var(--white)">Free</span>
             </div>
+            <div class="order-personalisation" id="personalisationLine" style="display:none;justify-content:space-between;padding:10px 0;font-size:.85rem;border-top:1px solid rgba(192,192,192,.06)">
+              <span style="color:var(--silver-dark)">Personalisation</span>
+              <span id="personalisationCost" style="color:var(--white)">$0.00</span>
+            </div>
             <div class="order-total">
               <span>Total</span>
               <span id="orderTotal">$0.00</span>
             </div>
           </div>
 
-          <!-- Colour preference — only shown when a case (Accessories) is in the cart -->
-          <div id="colourPrefBox" style="margin-top:20px;display:none;padding:18px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius)">
-            <label for="colourPref" style="display:block;font-family:var(--font-display);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);margin-bottom:6px">Case Colour Preference</label>
-            <p style="font-size:.78rem;color:var(--white-muted);line-height:1.5;margin-bottom:10px">Let us know your preferred colour for your case and we'll do our best to match it. Leave blank for the default.</p>
-            <input type="text" id="colourPref" maxlength="120" placeholder="e.g. Matte black, purple, teal..." style="width:100%;padding:12px 14px;background:var(--dark4);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius);color:var(--white);font-size:.9rem;box-sizing:border-box">
+          <!-- Case personalisation — only shown when a case (Accessories) is in the cart -->
+          <div id="personaliseBox" style="margin-top:20px;display:none;padding:18px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius)">
+            <div style="font-family:var(--font-display);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);margin-bottom:6px">Personalise Your Case</div>
+            <p style="font-size:.78rem;color:var(--white-muted);line-height:1.5;margin-bottom:14px">Pick a colour preference and logo option for each case. Add a custom name for +$10 per case. Everything's optional — leave it blank for the standard case, or message us on WhatsApp if you'd rather talk it through.</p>
+            <div id="personaliseUnits"></div>
           </div>
 
           <div class="bank-details" id="bankDetailsBox" style="margin-top:24px;display:none">
@@ -244,55 +248,125 @@
       document.getElementById('tabBank').classList.toggle('active', method === 'bank');
     }
 
+    // One entry per physical case in the cart (respects quantities), for personalisation.
+    let caseUnits = [];
+
+    function isCaseItem(item) {
+      const p = PRODUCTS.find(pr => pr.id === item.id);
+      return p && p.category === 'Accessories';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Shipping depends on product categories, so wait for PRODUCTS to load.
+      // Shipping and personalisation depend on product categories, so wait for PRODUCTS.
       PRODUCTS_READY.then(() => {
-      const itemsEl = document.getElementById('orderItems');
-      const totalEl = document.getElementById('orderTotal');
-      const stripeTotalEl = document.getElementById('stripeTotal');
-      if (cart.length === 0) {
-        itemsEl.innerHTML = '<p style="color:var(--white-muted);font-size:.85rem">No items in cart. <a href="products.html" style="color:var(--silver)">Browse products</a></p>';
-        document.getElementById('stripePayBtn').disabled = true;
-        return;
-      }
-      itemsEl.innerHTML = cart.map(item => `
-        <div class="order-item">
-          <span class="name">${item.name} x${item.qty}</span>
-          <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
-        </div>
-      `).join('');
-      const subtotal = getCartTotal();
-      // Bulky items (Accessories) always ship at the flat $15 rate, no free shipping.
-      const hasFlatItem = cart.some(item => {
-        const p = PRODUCTS.find(pr => pr.id === item.id);
-        return p && p.category === 'Accessories';
-      });
-      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
-      const total = subtotal + shippingFee;
-      const shippingEl = document.getElementById('shippingCost');
-      if (shippingEl) {
-        shippingEl.textContent = shippingFee === 0 ? 'Free' : `$${shippingFee.toFixed(2)}`;
-        shippingEl.style.color = shippingFee === 0 ? '#25D366' : 'var(--white)';
-      }
-      totalEl.textContent = `$${total.toFixed(2)} AUD`;
-      if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
-      // Cases live in the Accessories category — only prompt for a colour when one is in the cart.
-      const colourBox = document.getElementById('colourPrefBox');
-      if (colourBox) colourBox.style.display = hasFlatItem ? 'block' : 'none';
+        const itemsEl = document.getElementById('orderItems');
+        if (cart.length === 0) {
+          itemsEl.innerHTML = '<p style="color:var(--white-muted);font-size:.85rem">No items in cart. <a href="products.html" style="color:var(--silver)">Browse products</a></p>';
+          document.getElementById('stripePayBtn').disabled = true;
+          return;
+        }
+        itemsEl.innerHTML = cart.map(item => `
+          <div class="order-item">
+            <span class="name">${item.name} x${item.qty}</span>
+            <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
+          </div>
+        `).join('');
+
+        buildPersonalisation();
+        const box = document.getElementById('personaliseBox');
+        if (box) box.style.display = caseUnits.length ? 'block' : 'none';
+
+        const units = document.getElementById('personaliseUnits');
+        if (units) {
+          units.addEventListener('input', recalcTotals);
+          units.addEventListener('change', recalcTotals);
+        }
+        recalcTotals();
       });
     });
 
-    // Collects the optional case colour preference, formatted for the order notes.
-    function getColourNote() {
-      const el = document.getElementById('colourPref');
-      const v = (el && el.value || '').trim();
-      return v ? ('Colour preference: ' + v) : '';
+    // Renders one personalisation card per physical case (colour + logo + optional +$10 name).
+    function buildPersonalisation() {
+      caseUnits = [];
+      const container = document.getElementById('personaliseUnits');
+      if (!container) return;
+      cart.forEach(item => {
+        if (!isCaseItem(item)) return;
+        for (let k = 1; k <= item.qty; k++) {
+          caseUnits.push({ id: item.id, name: item.name, pos: k, total: item.qty });
+        }
+      });
+      const inputStyle = 'width:100%;padding:10px 12px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius);color:var(--white);font-size:.85rem;box-sizing:border-box';
+      const labelStyle = 'display:block;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:4px';
+      container.innerHTML = caseUnits.map((cu, u) => `
+        <div style="border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--dark4)">
+          <div style="font-size:.82rem;color:var(--white);margin-bottom:10px;font-weight:500">${cu.name}${cu.total > 1 ? ' — Case ' + cu.pos : ''}</div>
+          <label style="${labelStyle}">Colour preference</label>
+          <input class="pers-colour" data-u="${u}" type="text" maxlength="80" placeholder="e.g. Matte black, teal, purple..." style="${inputStyle}">
+          <div style="margin:12px 0 6px;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark)">BLKLINE logo</div>
+          <div style="display:flex;gap:18px;margin-bottom:12px">
+            <label style="font-size:.82rem;color:var(--white);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="logo-${u}" class="pers-logo" data-u="${u}" value="with" checked> With logo</label>
+            <label style="font-size:.82rem;color:var(--white);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="logo-${u}" class="pers-logo" data-u="${u}" value="without"> Plain (no logo)</label>
+          </div>
+          <label style="${labelStyle}">Custom name <span style="color:var(--silver);text-transform:none;letter-spacing:0">(+$10)</span></label>
+          <input class="pers-name" data-u="${u}" type="text" maxlength="40" placeholder="Leave blank for none" style="${inputStyle}">
+        </div>
+      `).join('');
+    }
+
+    // Reads the personalisation fields into { count of named cases, fee, order note }.
+    function getPersonalisation() {
+      let count = 0;
+      const segs = [];
+      caseUnits.forEach((cu, u) => {
+        const nameEl = document.querySelector('.pers-name[data-u="' + u + '"]');
+        const colEl = document.querySelector('.pers-colour[data-u="' + u + '"]');
+        const logoEl = document.querySelector('.pers-logo[data-u="' + u + '"]:checked');
+        const nm = (nameEl && nameEl.value || '').trim();
+        const col = (colEl && colEl.value || '').trim();
+        const logo = logoEl ? logoEl.value : 'with';
+        if (!col && !nm && logo === 'with') return; // untouched = standard case
+        const parts = [];
+        if (col) parts.push('Colour: ' + col);
+        parts.push('Logo: ' + (logo === 'without' ? 'No logo' : 'BLKLINE logo'));
+        if (nm) { parts.push('Name: ' + nm + ' (+$10)'); count++; }
+        const label = cu.name + (cu.total > 1 ? ' #' + cu.pos : '');
+        segs.push(label + ' — ' + parts.join(', '));
+      });
+      return { count: count, fee: count * 10, notes: segs.join(' | ') };
+    }
+
+    // Single source of truth for the displayed/charged total: subtotal + shipping + personalisation.
+    function recalcTotals() {
+      const subtotal = getCartTotal();
+      // Bulky items (Accessories) always ship at the flat $15 rate, no free shipping.
+      const hasFlatItem = cart.some(isCaseItem);
+      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
+      const pers = getPersonalisation();
+      const total = subtotal + shippingFee + pers.fee;
+
+      const shippingEl = document.getElementById('shippingCost');
+      if (shippingEl) {
+        shippingEl.textContent = shippingFee === 0 ? 'Free' : '$' + shippingFee.toFixed(2);
+        shippingEl.style.color = shippingFee === 0 ? '#25D366' : 'var(--white)';
+      }
+      const pLine = document.getElementById('personalisationLine');
+      const pCost = document.getElementById('personalisationCost');
+      if (pLine && pCost) {
+        if (pers.fee > 0) { pLine.style.display = 'flex'; pCost.textContent = '$' + pers.fee.toFixed(2); }
+        else { pLine.style.display = 'none'; }
+      }
+      const totalEl = document.getElementById('orderTotal');
+      if (totalEl) totalEl.textContent = '$' + total.toFixed(2) + ' AUD';
+      const stripeTotalEl = document.getElementById('stripeTotal');
+      if (stripeTotalEl) stripeTotalEl.textContent = total.toFixed(2);
+      return { subtotal, shippingFee, pers, total };
     }
 
     function resetPayBtn() {
       const btn = document.getElementById('stripePayBtn');
       btn.disabled = false;
-      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $' + getCartTotal().toFixed(2) + ' AUD';
+      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Now — $' + recalcTotals().total.toFixed(2) + ' AUD';
     }
 
     function payWithStripe() {
@@ -315,6 +389,7 @@
         lineItems.push({ price: product.stripePriceId, quantity: item.qty });
       }
 
+      var pers = getPersonalisation();
       var totalCents = Math.round(getCartTotal() * 100);
       fetch(STRIPE_API + '/create-checkout-session', {
         method: 'POST',
@@ -322,7 +397,8 @@
         body: JSON.stringify({
           lineItems: lineItems,
           orderTotal: totalCents,
-          notes: getColourNote(),
+          personalisationCount: pers.count,
+          notes: pers.notes,
           successUrl: window.location.origin + '/pages/success.html',
           cancelUrl: window.location.href
         })
@@ -352,23 +428,24 @@
 
       document.getElementById('orderNumber').textContent = orderNum;
 
-      // Match the order-summary maths so the recorded/quoted amount includes shipping.
+      // Match the order-summary maths so the recorded/quoted amount includes shipping + personalisation.
       const subtotal = getCartTotal();
-      const hasFlatItem = cart.some(item => {
-        const p = PRODUCTS.find(pr => pr.id === item.id);
-        return p && p.category === 'Accessories';
-      });
+      const hasFlatItem = cart.some(isCaseItem);
       const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
-      const total = subtotal + shippingFee;
+      const pers = getPersonalisation();
+      const total = subtotal + shippingFee + pers.fee;
       const fullName = `${data.get('firstName')} ${data.get('lastName')}`.trim();
 
-      // Combine the colour preference with any general order notes.
+      // Combine the case personalisation details with any general order notes.
       const noteParts = [];
-      const colourNote = getColourNote();
-      if (colourNote) noteParts.push(colourNote);
+      if (pers.notes) noteParts.push(pers.notes);
       const generalNotes = (data.get('notes') || '').trim();
-      if (generalNotes) noteParts.push(generalNotes);
+      if (generalNotes) noteParts.push('Notes: ' + generalNotes);
       const combinedNotes = noteParts.join(' | ');
+
+      // List the personalisation charge as its own line so the order items sum to the total.
+      const orderItems = cart.map(i => ({ realName: i.name, quantity: i.qty, amount: (i.price * i.qty).toFixed(2) }));
+      if (pers.count > 0) orderItems.push({ realName: 'Case Personalisation (custom name)', quantity: pers.count, amount: pers.fee.toFixed(2) });
 
       // Record the order server-side so it lands in the admin Orders tab and fires a
       // notification email — the customer no longer has to send details manually for
@@ -388,7 +465,7 @@
             country: data.get('country') || 'Australia'
           }
         },
-        items: cart.map(i => ({ realName: i.name, quantity: i.qty, amount: (i.price * i.qty).toFixed(2) })),
+        items: orderItems,
         total: total.toFixed(2),
         currency: 'AUD',
         notes: combinedNotes
