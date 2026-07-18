@@ -332,8 +332,10 @@
         return `
         <div style="border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--dark4)">
           ${header}
-          <label style="${labelStyle}">Colour preference</label>
-          <select class="pers-colour" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (default)</option>${colourOptions}</select>
+          <label style="${labelStyle}">Base colour</label>
+          <select class="pers-base" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (default)</option>${colourOptions}</select>
+          <label style="${labelStyle};margin-top:12px">Writing colour</label>
+          <select class="pers-writing" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (default)</option>${colourOptions}</select>
           <div style="margin:12px 0 6px;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark)">BLKLINE logo</div>
           <div style="display:flex;gap:18px;margin-bottom:12px">
             <label style="font-size:.82rem;color:var(--white);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="logo-${u}" class="pers-logo" data-u="${u}" value="with" checked> With logo</label>
@@ -365,14 +367,17 @@
           return;
         }
         const nameEl = document.querySelector('.pers-name[data-u="' + u + '"]');
-        const colEl = document.querySelector('.pers-colour[data-u="' + u + '"]');
+        const baseEl = document.querySelector('.pers-base[data-u="' + u + '"]');
+        const writeEl = document.querySelector('.pers-writing[data-u="' + u + '"]');
         const logoEl = document.querySelector('.pers-logo[data-u="' + u + '"]:checked');
         const nm = (nameEl && nameEl.value || '').trim();
-        const col = (colEl && colEl.value || '').trim();
+        const base = (baseEl && baseEl.value || '').trim();
+        const writing = (writeEl && writeEl.value || '').trim();
         const logo = logoEl ? logoEl.value : 'with';
-        if (!col && !nm && logo === 'with') return; // untouched = standard case
+        if (!base && !writing && !nm && logo === 'with') return; // untouched = standard case
         const parts = [];
-        if (col) parts.push('Colour: ' + col);
+        if (base) parts.push('Base: ' + base);
+        if (writing) parts.push('Writing: ' + writing);
         parts.push('Logo: ' + (logo === 'without' ? 'No logo' : 'BLKLINE logo'));
         if (nm) { parts.push('Name: ' + nm + ' (+$10)'); count++; }
         const label = cu.name + (cu.total > 1 ? ' #' + cu.pos : '');
@@ -384,9 +389,11 @@
     // Single source of truth for the displayed/charged total: subtotal + shipping + personalisation.
     function recalcTotals() {
       const subtotal = getCartTotal();
-      // Bulky items (Accessories) always ship at the flat $15 rate, no free shipping.
+      // Caps ordered on their own post as a letter ($2). Bulky items (Accessories) always
+      // ship at the flat $15 rate, no free shipping. Otherwise standard, free over $250.
+      const capsOnly = cart.length > 0 && cart.every(isCapItem);
       const hasFlatItem = cart.some(isCaseItem);
-      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
+      const shippingFee = capsOnly ? 2 : (hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10));
       const pers = getPersonalisation();
       const total = subtotal + shippingFee + pers.fee;
 
@@ -475,8 +482,9 @@
 
       // Match the order-summary maths so the recorded/quoted amount includes shipping + personalisation.
       const subtotal = getCartTotal();
+      const capsOnly = cart.length > 0 && cart.every(isCapItem);
       const hasFlatItem = cart.some(isCaseItem);
-      const shippingFee = hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10);
+      const shippingFee = capsOnly ? 2 : (hasFlatItem ? 15 : (subtotal >= 250 ? 0 : 10));
       const pers = getPersonalisation();
       const total = subtotal + shippingFee + pers.fee;
       const fullName = `${data.get('firstName')} ${data.get('lastName')}`.trim();
