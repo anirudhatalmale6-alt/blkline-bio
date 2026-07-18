@@ -166,8 +166,8 @@
 
           <!-- Case personalisation — only shown when a case (Accessories) is in the cart -->
           <div id="personaliseBox" style="margin-top:20px;display:none;padding:18px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius)">
-            <div style="font-family:var(--font-display);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);margin-bottom:6px">Personalise Your Case</div>
-            <p style="font-size:.78rem;color:var(--white-muted);line-height:1.5;margin-bottom:14px">Pick a colour preference and logo option for each case. Add a custom name for +$10 per case. Everything's optional — leave it blank for the standard case, or message us on WhatsApp if you'd rather talk it through.</p>
+            <div style="font-family:var(--font-display);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);margin-bottom:6px">Personalise Your Order</div>
+            <p style="font-size:.78rem;color:var(--white-muted);line-height:1.5;margin-bottom:14px">Choose your options for each item below. Cases: pick a colour and logo option, add a custom name for +$10 per case. Vial caps: choose a base and writing colour and list which peptides you'd like. Everything's optional — leave it blank for the standard version, or message us on WhatsApp if you'd rather talk it through.</p>
             <div id="personaliseUnits"></div>
           </div>
 
@@ -256,6 +256,11 @@
       return p && p.category === 'Accessories';
     }
 
+    function isCapItem(item) {
+      const p = PRODUCTS.find(pr => pr.id === item.id);
+      return p && p.category === 'Vial Caps';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Shipping and personalisation depend on product categories, so wait for PRODUCTS.
       PRODUCTS_READY.then(() => {
@@ -301,17 +306,32 @@
       const container = document.getElementById('personaliseUnits');
       if (!container) return;
       cart.forEach(item => {
-        if (!isCaseItem(item)) return;
+        const type = isCaseItem(item) ? 'case' : (isCapItem(item) ? 'cap' : null);
+        if (!type) return;
         for (let k = 1; k <= item.qty; k++) {
-          caseUnits.push({ id: item.id, name: item.name, pos: k, total: item.qty });
+          caseUnits.push({ type: type, id: item.id, name: item.name, pos: k, total: item.qty });
         }
       });
       const inputStyle = 'width:100%;padding:10px 12px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius);color:var(--white);font-size:.85rem;box-sizing:border-box';
       const labelStyle = 'display:block;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:4px';
       const colourOptions = CASE_COLOURS.map(c => `<option value="${c}">${c}</option>`).join('');
-      container.innerHTML = caseUnits.map((cu, u) => `
+      container.innerHTML = caseUnits.map((cu, u) => {
+        const header = `<div style="font-size:.82rem;color:var(--white);margin-bottom:10px;font-weight:500">${cu.name}${cu.total > 1 ? ' — ' + (cu.type === 'cap' ? 'Pack ' : 'Case ') + cu.pos : ''}</div>`;
+        if (cu.type === 'cap') {
+          return `
         <div style="border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--dark4)">
-          <div style="font-size:.82rem;color:var(--white);margin-bottom:10px;font-weight:500">${cu.name}${cu.total > 1 ? ' — Case ' + cu.pos : ''}</div>
+          ${header}
+          <label style="${labelStyle}">Base colour</label>
+          <select class="cap-base" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (Black)</option>${colourOptions}</select>
+          <label style="${labelStyle};margin-top:12px">Writing colour</label>
+          <select class="cap-writing" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (White)</option>${colourOptions}</select>
+          <label style="${labelStyle};margin-top:12px">Which peptides? <span style="color:var(--silver);text-transform:none;letter-spacing:0">(up to 5 per pack)</span></label>
+          <textarea class="cap-peptides" data-u="${u}" rows="2" maxlength="200" placeholder="e.g. BPC-157, TB-500, NAD+, GHK-Cu, Ipamorelin" style="${inputStyle};resize:vertical"></textarea>
+        </div>`;
+        }
+        return `
+        <div style="border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--dark4)">
+          ${header}
           <label style="${labelStyle}">Colour preference</label>
           <select class="pers-colour" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (default)</option>${colourOptions}</select>
           <div style="margin:12px 0 6px;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark)">BLKLINE logo</div>
@@ -321,8 +341,8 @@
           </div>
           <label style="${labelStyle}">Custom name <span style="color:var(--silver);text-transform:none;letter-spacing:0">(+$10)</span></label>
           <input class="pers-name" data-u="${u}" type="text" maxlength="40" placeholder="Leave blank for none" style="${inputStyle}">
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     // Reads the personalisation fields into { count of named cases, fee, order note }.
@@ -330,6 +350,20 @@
       let count = 0;
       const segs = [];
       caseUnits.forEach((cu, u) => {
+        if (cu.type === 'cap') {
+          const baseEl = document.querySelector('.cap-base[data-u="' + u + '"]');
+          const writeEl = document.querySelector('.cap-writing[data-u="' + u + '"]');
+          const pepEl = document.querySelector('.cap-peptides[data-u="' + u + '"]');
+          const base = (baseEl && baseEl.value || '').trim();
+          const writing = (writeEl && writeEl.value || '').trim();
+          const peptides = (pepEl && pepEl.value || '').trim();
+          if (!base && !writing && !peptides) return; // untouched = standard caps
+          const parts = ['Base: ' + (base || 'Black'), 'Writing: ' + (writing || 'White')];
+          if (peptides) parts.push('Peptides: ' + peptides);
+          const label = cu.name + (cu.total > 1 ? ' #' + cu.pos : '');
+          segs.push(label + ' — ' + parts.join(', '));
+          return;
+        }
         const nameEl = document.querySelector('.pers-name[data-u="' + u + '"]');
         const colEl = document.querySelector('.pers-colour[data-u="' + u + '"]');
         const logoEl = document.querySelector('.pers-logo[data-u="' + u + '"]:checked');
