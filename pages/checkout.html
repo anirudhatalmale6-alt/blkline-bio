@@ -286,6 +286,16 @@
     });
 
     // Renders one personalisation card per physical case (colour + logo + optional +$10 name).
+    // Colour options for case personalisation (same list on every case).
+    const CASE_COLOURS = [
+      'Matte Pink', 'Matte Purple', 'Matte White', 'Matte Baby Blue',
+      'Matte Dark Blue (Navy)', 'Matte Grass Green', 'Matte Red', 'Matte Orange',
+      'Matte Plum', 'Matte Charcoal', 'Matte Lemon Yellow',
+      'Black', 'White', 'Dark Coffee Brown', 'Light Latte Brown',
+      'Olive Green', 'Beige', 'Dark Grey', 'Rainbow 04',
+      'Purple/Blk Silk', 'Pink Silk'
+    ];
+
     function buildPersonalisation() {
       caseUnits = [];
       const container = document.getElementById('personaliseUnits');
@@ -298,11 +308,12 @@
       });
       const inputStyle = 'width:100%;padding:10px 12px;background:var(--dark3);border:1px solid rgba(192,192,192,.12);border-radius:var(--radius);color:var(--white);font-size:.85rem;box-sizing:border-box';
       const labelStyle = 'display:block;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:4px';
+      const colourOptions = CASE_COLOURS.map(c => `<option value="${c}">${c}</option>`).join('');
       container.innerHTML = caseUnits.map((cu, u) => `
         <div style="border:1px solid rgba(192,192,192,.1);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--dark4)">
           <div style="font-size:.82rem;color:var(--white);margin-bottom:10px;font-weight:500">${cu.name}${cu.total > 1 ? ' — Case ' + cu.pos : ''}</div>
           <label style="${labelStyle}">Colour preference</label>
-          <input class="pers-colour" data-u="${u}" type="text" maxlength="80" placeholder="e.g. Matte black, teal, purple..." style="${inputStyle}">
+          <select class="pers-colour" data-u="${u}" style="${inputStyle};appearance:auto"><option value="">Standard (default)</option>${colourOptions}</select>
           <div style="margin:12px 0 6px;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--silver-dark)">BLKLINE logo</div>
           <div style="display:flex;gap:18px;margin-bottom:12px">
             <label style="font-size:.82rem;color:var(--white);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="logo-${u}" class="pers-logo" data-u="${u}" value="with" checked> With logo</label>
