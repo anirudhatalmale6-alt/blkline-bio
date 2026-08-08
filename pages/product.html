@@ -7,6 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .product-coa{margin-top:28px;padding-top:24px;border-top:1px solid rgba(192,192,192,.12)}
+    .coa-heading{font-family:var(--font-display);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--white);margin-bottom:16px}
+    .coa-links{display:flex;flex-direction:column;gap:10px}
+    .coa-link{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid rgba(192,192,192,.25);border-radius:var(--radius);color:var(--silver);font-size:.8rem;letter-spacing:.5px;transition:var(--transition);background:var(--dark3)}
+    .coa-link:hover{background:var(--silver);color:var(--black);border-color:var(--silver)}
+    .coa-link svg{flex-shrink:0}
+    .coa-note{margin-top:12px;font-size:.72rem;color:var(--silver-dark);letter-spacing:.3px}
+  </style>
 </head>
 <body>
 
@@ -110,6 +119,21 @@
         `<div class="spec-row"><span class="label">${k}</span><span class="value">${v}</span></div>`
       ).join('') : '';
 
+      // Certificate of Analysis — supports a single path or an array of {label, file}
+      const coaList = Array.isArray(product.coa)
+        ? product.coa
+        : (product.coa ? [{ label: 'Certificate of Analysis', file: product.coa }] : []);
+      const resolveAsset = (f) => f.startsWith('uploads/') ? API_BASE + '/' + f : (f.startsWith('http') ? f : '../' + f);
+      const docSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>';
+      const coaHtml = coaList.length ? `
+        <div class="product-coa">
+          <h3 class="coa-heading">Certificate of Analysis</h3>
+          <div class="coa-links">
+            ${coaList.map(c => `<a href="${resolveAsset(c.file)}" target="_blank" rel="noopener" class="coa-link">${docSvg}<span>${c.label || 'Certificate of Analysis'}</span></a>`).join('')}
+          </div>
+          <p class="coa-note">Independent third-party lab tested. Tap to view the full report.</p>
+        </div>` : '';
+
       const outOfStock = product.stock <= 0;
       const lowStock = product.stock > 0 && product.stock <= 3;
 
@@ -142,6 +166,7 @@
                <button class="btn btn-primary btn-add-large" onclick="addToCart(${product.id}, detailQty)">Add to Cart — $<span id="totalPrice">${product.price.toFixed(2)}</span></button>`
           }
           ${specsHtml ? `<div class="product-specs"><h3 style="font-family:var(--font-display);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--white);margin-bottom:16px">Specifications</h3>${specsHtml}</div>` : ''}
+          ${coaHtml}
         </div>
       `;
 
