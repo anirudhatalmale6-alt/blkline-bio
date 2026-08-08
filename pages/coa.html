@@ -110,8 +110,15 @@
     const CAT_ORDER = ['Weight Loss','Recovery','Anti-Aging','Tanning','Cognitive','Nasal Sprays','Supplies','Accessories','Vial Caps'];
     const resolveAsset = (f) => f.startsWith('uploads/') ? API_BASE + '/' + f : (f.startsWith('http') ? f : '../' + f);
 
+    // Certificates shown for reference only (compounds not currently sold in the store).
+    const EXTRA_COAS = [
+      { name: 'Retatrutide 60mg', category: 'Weight Loss', coa: [{ label: 'Certificate of Analysis', file: 'uploads/coa/retatrutide-60mg.png' }] },
+      { name: 'Tirzepatide 60mg', category: 'Weight Loss', coa: [{ label: 'Certificate of Analysis', file: 'uploads/coa/tirzepatide-60mg.png' }] },
+      { name: 'Epithalon 10mg', category: 'Anti-Aging', coa: [{ label: 'Certificate of Analysis', file: 'uploads/coa/epithalon-10mg.png' }] },
+    ];
+
     PRODUCTS_READY.then(() => {
-      const withCoa = PRODUCTS.filter(p => p.coa && (Array.isArray(p.coa) ? p.coa.length : true));
+      const withCoa = PRODUCTS.filter(p => p.coa && (Array.isArray(p.coa) ? p.coa.length : true)).concat(EXTRA_COAS);
       const gallery = document.getElementById('coaGallery');
       if (!withCoa.length) {
         gallery.innerHTML = '<p style="text-align:center;color:var(--silver-dark)">Certificates coming soon.</p>';
