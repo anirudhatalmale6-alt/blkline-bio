@@ -206,12 +206,15 @@ function applyLiveStock(stockData) {
 function renderAllProducts() {
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
-    // Anything badged "Best Seller" is pinned to the front of the featured row, oldest
-    // first, so adding a new one appends rather than displacing the existing lead.
+    // Order: anything flagged `pinned` leads the row (client picks the lead product),
+    // then anything badged "Best Seller" oldest first, then everything else.
     const inStock = PRODUCTS.filter(p => p.stock > 0);
+    const isPinned = p => p.pinned === true;
     const isBestSeller = p => (p.badge || '').toLowerCase().includes('best');
-    const best = inStock.filter(isBestSeller).sort((a, b) => a.id - b.id);
-    const featured = best.concat(inStock.filter(p => !isBestSeller(p)));
+    const pinned = inStock.filter(isPinned).sort((a, b) => a.id - b.id);
+    const rest = inStock.filter(p => !isPinned(p));
+    const best = rest.filter(isBestSeller).sort((a, b) => a.id - b.id);
+    const featured = pinned.concat(best, rest.filter(p => !isBestSeller(p)));
     renderProducts('featuredProducts', featured.slice(0, 4));
   }
   const allContainer = document.getElementById('allProducts');
