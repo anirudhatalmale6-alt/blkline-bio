@@ -91,6 +91,11 @@ button{cursor:pointer;font-family:inherit}
 .product-card.out-of-stock .product-image{opacity:.5}
 .product-card.out-of-stock .product-image::after{background:linear-gradient(135deg,rgba(0,0,0,.3),transparent)}
 .badge-soon{background:var(--dark4) !important;color:var(--silver) !important;border:1px solid rgba(192,192,192,.2)}
+.badge-sale{background:#c8a24a !important;color:#000 !important;border:none}
+.sale-banner{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:14px 20px;margin-bottom:40px;border:1px solid rgba(200,162,74,.35);background:linear-gradient(90deg,rgba(200,162,74,.10),rgba(200,162,74,.03));border-radius:var(--radius)}
+.sale-banner-tag{padding:5px 12px;background:#c8a24a;color:#000;font-family:var(--font-display);font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:2px;white-space:nowrap}
+.sale-banner-text{font-size:.85rem;letter-spacing:1px;color:var(--white-dim)}
+.price-was{font-size:.85rem;color:var(--silver-dark);text-decoration:line-through;margin-right:8px;font-weight:400}
 .btn-soon{opacity:.5;cursor:not-allowed !important;background:transparent !important;color:var(--silver-dark) !important;border-color:rgba(192,192,192,.1) !important}
 .stock-low{font-size:.65rem;letter-spacing:1px;color:#e8a838;margin-top:8px;text-transform:uppercase}
 .promo-banner{background:var(--dark2);border-bottom:1px solid rgba(192,192,192,.06);padding:10px 0;text-align:center;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dark)}

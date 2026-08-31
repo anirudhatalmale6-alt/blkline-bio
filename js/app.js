@@ -65,8 +65,16 @@ function updateQty(productId, delta) {
   renderCartItems();
 }
 
+// Always price a cart line off the live catalogue, falling back to what was stored only
+// while PRODUCTS is still loading. A cart saved before a sale started (or before it
+// ended) would otherwise quote a price the server no longer charges.
+function priceOf(item) {
+  const product = PRODUCTS.find(p => p.id === item.id);
+  return product ? product.price : item.price;
+}
+
 function getCartTotal() {
-  return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  return cart.reduce((sum, item) => sum + (priceOf(item) * item.qty), 0);
 }
 
 function showToast(msg) {
@@ -111,7 +119,7 @@ function renderCartItems() {
       <div class="cart-item-img">${imgPath ? `<img src="${imgPath}" alt="${item.name}">` : vialSVG}</div>
       <div class="cart-item-details">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">$${item.price.toFixed(2)} ${item.currency}</div>
+        <div class="cart-item-price">$${priceOf(item).toFixed(2)} ${item.currency}</div>
         <div class="cart-item-qty">
           <button onclick="updateQty(${item.id},-1)">&minus;</button>
           <span>${item.qty}</span>
@@ -146,7 +154,7 @@ function renderProducts(containerId, products) {
     <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
       <div class="product-image">
         ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy">` : vialSVG}
-        ${p.badge === 'Coming Soon' && outOfStock ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.badge && p.badge !== 'Coming Soon' ? `<span class="product-badge">${p.badge}</span>` : ''}
+        ${p.badge === 'Coming Soon' && outOfStock ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.onSale && !outOfStock ? `<span class="product-badge badge-sale">${p.saleLabel || 'ON SALE'}</span>` : p.badge && p.badge !== 'Coming Soon' ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>
       <div class="product-info">
         <div class="product-category">${p.category}</div>
@@ -155,7 +163,7 @@ function renderProducts(containerId, products) {
         <div class="product-footer">
           ${outOfStock
             ? `<div class="product-price" style="color:var(--silver-dark)">Coming Soon</div><button class="btn-add btn-soon" disabled>Coming Soon</button>`
-            : `<div class="product-price"><span class="currency">$</span>${p.price.toFixed(2)} <span class="currency">${p.currency}</span></div><button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>`
+            : `<div class="product-price">${p.fullPrice ? `<span class="price-was">$${p.fullPrice.toFixed(2)}</span>` : ''}<span class="currency">$</span>${p.price.toFixed(2)} <span class="currency">${p.currency}</span></div><button class="btn-add" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>`
           }
         </div>
         ${lowStock ? `<div class="stock-low">Only ${p.stock} left</div>` : ''}
@@ -203,6 +211,22 @@ function applyLiveStock(stockData) {
   });
 }
 
+// Announce the sale only when something is actually discounted, so switching the sale
+// off server-side removes the banner too — there's nothing to remember to take down.
+function renderSaleBanner() {
+  const el = document.getElementById('saleBanner');
+  if (!el) return;
+  const onSale = PRODUCTS.filter(p => p.onSale);
+  if (onSale.length === 0) { el.innerHTML = ''; return; }
+  const label = onSale[0].saleLabel || 'ON SALE';
+  el.innerHTML = `
+    <div class="sale-banner fade-up">
+      <span class="sale-banner-tag">${label}</span>
+      <span class="sale-banner-text">Store sale now on &mdash; ${label} all peptide powders. Discount applied automatically at checkout.</span>
+    </div>`;
+  observeFadeUp();
+}
+
 function renderAllProducts() {
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
@@ -231,6 +255,18 @@ var PRODUCTS_READY = fetch(API_BASE + '/products')
   .then(products => {
     PRODUCTS = products;
     PRODUCTS.forEach(p => { if (p.stock === undefined) p.stock = 0; });
+    // While a sale is on, the discounted figure becomes THE price everywhere on the
+    // storefront and the original is kept as `fullPrice` purely to strike through.
+    // Doing the swap once here means the cart, order summary, WhatsApp text and
+    // bank-transfer flow all price the sale correctly without any of them knowing
+    // a sale exists. The server independently swaps in the same discounted Stripe
+    // price at checkout, so what we show is what actually gets charged.
+    PRODUCTS.forEach(p => {
+      if (p.onSale && typeof p.salePrice === 'number') {
+        p.fullPrice = p.price;
+        p.price = p.salePrice;
+      }
+    });
     return fetch(API_BASE + '/stock');
   })
   .then(r => r.json())
@@ -242,5 +278,5 @@ var PRODUCTS_READY = fetch(API_BASE + '/products')
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
   observeFadeUp();
-  PRODUCTS_READY.then(() => renderAllProducts());
+  PRODUCTS_READY.then(() => { renderSaleBanner(); renderAllProducts(); });
 });

@@ -267,7 +267,9 @@
     function loadAllData() {
       showStatus('Loading...', 'loading');
       Promise.all([
-        fetch(API_URL + '/products').then(function(r) { return r.json(); }),
+        // raw=1: the real catalogue prices, not the sale-discounted ones, so editing a
+        // product during a sale can't bake the discount in as its new price.
+        fetch(API_URL + '/products?raw=1').then(function(r) { return r.json(); }),
         fetch(API_URL + '/stock').then(function(r) { return r.json(); })
       ]).then(function(results) {
         allProducts = results[0];

@@ -273,7 +273,7 @@
         itemsEl.innerHTML = cart.map(item => `
           <div class="order-item">
             <span class="name">${item.name} x${item.qty}</span>
-            <span class="price">$${(item.price * item.qty).toFixed(2)}</span>
+            <span class="price">$${(priceOf(item) * item.qty).toFixed(2)}</span>
           </div>
         `).join('');
 
@@ -497,7 +497,7 @@
       const combinedNotes = noteParts.join(' | ');
 
       // List the personalisation charge as its own line so the order items sum to the total.
-      const orderItems = cart.map(i => ({ realName: i.name, quantity: i.qty, amount: (i.price * i.qty).toFixed(2) }));
+      const orderItems = cart.map(i => ({ realName: i.name, quantity: i.qty, amount: (priceOf(i) * i.qty).toFixed(2) }));
       if (pers.count > 0) orderItems.push({ realName: 'Case Personalisation (custom name)', quantity: pers.count, amount: pers.fee.toFixed(2) });
 
       // Record the order server-side so it lands in the admin Orders tab and fires a

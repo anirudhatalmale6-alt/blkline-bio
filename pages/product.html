@@ -152,7 +152,7 @@
                  <p style="font-size:.8rem;color:var(--white-muted);margin-top:4px">Expected availability: 1-2 weeks</p>
                  <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Hi, I'm interested in ${encodeURIComponent(product.name)} — can you let me know when it's back in stock?" target="_blank" class="btn btn-outline" style="margin-top:12px;padding:10px 24px;font-size:.7rem">Notify Me via WhatsApp</a>
                </div>`
-            : `<div class="price">$${product.price.toFixed(2)} <span style="font-size:.9rem;color:var(--silver-dark)">${product.currency}</span></div>
+            : `<div class="price">${product.fullPrice ? `<span class="price-was">$${product.fullPrice.toFixed(2)}</span>` : ''}$${product.price.toFixed(2)} <span style="font-size:.9rem;color:var(--silver-dark)">${product.currency}</span>${product.onSale ? ` <span class="product-badge badge-sale" style="position:static;display:inline-block;vertical-align:middle;margin-left:8px">${product.saleLabel || 'ON SALE'}</span>` : ''}</div>
                <div class="description">${product.desc}</div>
                ${lowStock ? '<div style="font-size:.75rem;color:#e8a838;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Only ' + product.stock + ' left in stock</div>' : ''}
                <div class="qty-selector">
