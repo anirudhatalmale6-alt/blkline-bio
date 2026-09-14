@@ -45,30 +45,31 @@
     <a href="#" onclick="toggleMobileNav();openCart();return false;">Cart</a>
   </div>
 
-  <section class="section" style="padding-top:120px">
+  <section style="padding-top:120px;padding-bottom:70px">
     <div class="container">
-      <div class="section-header fade-up">
+      <div class="section-header fade-up" style="margin-bottom:28px">
         <div class="section-label">Browse Collection</div>
         <h2 class="section-title">All Peptides</h2>
         <div class="section-line"></div>
       </div>
 
       <div id="saleBanner"></div>
+    </div>
 
-      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:48px;flex-wrap:wrap" class="fade-up">
-        <button class="btn-filter active" onclick="filterProducts('all',this)">All</button>
-        <button class="btn-filter" onclick="filterProducts('Weight Loss',this)">Weight Loss</button>
-        <button class="btn-filter" onclick="filterProducts('Recovery',this)">Recovery</button>
-        <button class="btn-filter" onclick="filterProducts('Anti-Aging',this)">Anti-Aging</button>
-        <button class="btn-filter" onclick="filterProducts('Tanning',this)">Tanning</button>
-        <button class="btn-filter" onclick="filterProducts('Cognitive',this)">Cognitive</button>
-        <button class="btn-filter" onclick="filterProducts('Nasal Sprays',this)">Nasal Sprays</button>
-        <button class="btn-filter" onclick="filterProducts('Supplies',this)">Supplies</button>
-        <button class="btn-filter" onclick="filterProducts('Accessories',this)">Accessories</button>
-        <button class="btn-filter" onclick="filterProducts('Vial Caps',this)">Vial Caps</button>
+    <div class="shopbar">
+      <div class="container">
+        <div class="searchwrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" type="text" placeholder="Search a peptide, e.g. retatrutide" autocomplete="off">
+        </div>
+        <div class="filters" id="filters"></div>
       </div>
+    </div>
 
+    <div class="container">
+      <div class="countline" id="countline"></div>
       <div class="products-grid" id="allProducts"></div>
+      <div class="empty" id="empty" style="display:none">Nothing matches that search.</div>
     </div>
   </section>
 
@@ -99,19 +100,11 @@
     <span class="toast-msg"></span>
   </div>
 
-  <style>
-    .btn-filter{padding:8px 20px;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;background:transparent;color:var(--silver-dark);border:1px solid rgba(192,192,192,.15);border-radius:20px;transition:var(--transition);font-family:var(--font-main);font-weight:500}
-    .btn-filter:hover,.btn-filter.active{background:var(--silver);color:var(--black);border-color:var(--silver)}
-  </style>
-
   <script src="../js/app.js"></script>
   <script>
-    function filterProducts(category, btn) {
-      document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const filtered = category === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === category);
-      renderProducts('allProducts', filtered);
-    }
+    // Same search box and category chips as the home page; both call the one
+    // implementation in app.js so the two pages can't drift apart.
+    PRODUCTS_READY.then(initShopFilters);
     function goToProduct(id) { window.location.href = `product.html?id=${id}`; }
   </script>
 </body>

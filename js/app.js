@@ -268,10 +268,66 @@ function renderAllProducts() {
     const featured = pinned.concat(best, rest.filter(p => !isBestSeller(p)));
     renderProducts('featuredProducts', featured.slice(0, 4));
   }
+  // When the page has a filter bar, initShopFilters() owns this grid — rendering
+  // all 59 cards here as well would just build them twice on every load.
   const allContainer = document.getElementById('allProducts');
-  if (allContainer) {
+  if (allContainer && !document.getElementById('filters')) {
     renderProducts('allProducts', PRODUCTS);
   }
+}
+
+// SHOP FILTERS — the search box and category chips above #allProducts.
+// Lives here rather than in the pages so the home page and the products page
+// can't drift apart; each page just calls initShopFilters() once PRODUCTS is in.
+// Fixed category order so the bar doesn't reshuffle when stock changes. Counts
+// come from the live catalogue, and a category not in this list is appended
+// rather than dropped, so a new one can never go missing from the filters.
+const SHOP_CATEGORY_ORDER = ['Weight Loss', 'Recovery', 'Anti-Aging', 'Cognitive', 'Tanning', 'Nasal Sprays', 'Supplies', 'Accessories', 'Vial Caps'];
+
+function initShopFilters() {
+  const grid = document.getElementById('allProducts');
+  const bar = document.getElementById('filters');
+  if (!grid || !bar) return;
+
+  const searchEl = document.getElementById('search');
+  const countEl = document.getElementById('countline');
+  const emptyEl = document.getElementById('empty');
+  let activeCat = 'all';
+
+  function draw() {
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    const list = PRODUCTS.filter(p => {
+      if (activeCat !== 'all' && p.category !== activeCat) return false;
+      if (!q) return true;
+      return `${p.name} ${p.category} ${p.desc || ''}`.toLowerCase().includes(q);
+    });
+    renderProducts('allProducts', list);
+    if (emptyEl) emptyEl.style.display = list.length ? 'none' : 'block';
+    if (countEl) {
+      countEl.textContent = `${list.length} ${list.length === 1 ? 'product' : 'products'}` +
+        (activeCat === 'all' ? '' : ` in ${activeCat}`);
+    }
+  }
+
+  const counts = {};
+  PRODUCTS.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
+  const cats = SHOP_CATEGORY_ORDER.filter(c => counts[c])
+    .concat(Object.keys(counts).filter(c => !SHOP_CATEGORY_ORDER.includes(c)));
+
+  bar.innerHTML = `<button class="chip active" data-cat="all">All<span class="n">${PRODUCTS.length}</span></button>` +
+    cats.map(c => `<button class="chip" data-cat="${c}">${c}<span class="n">${counts[c]}</span></button>`).join('');
+
+  bar.querySelectorAll('.chip').forEach(btn => {
+    btn.onclick = () => {
+      bar.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCat = btn.dataset.cat;
+      draw();
+    };
+  });
+
+  if (searchEl) searchEl.addEventListener('input', draw);
+  draw();
 }
 
 // Kicked off at load, not on DOMContentLoaded, so pages can await PRODUCTS before

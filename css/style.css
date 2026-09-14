@@ -253,3 +253,45 @@ button{cursor:pointer;font-family:inherit}
 /* SCROLL ANIMATIONS */
 .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
 .fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* SHOP GRID — shared by the home page and the products page.
+   The compact card rules are keyed on #allProducts so the featured row on the
+   home page keeps its larger cards and its descriptions. */
+.shopbar{position:sticky;top:70px;z-index:900;background:rgba(0,0,0,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(192,192,192,.08);padding:14px 0;margin-bottom:28px}
+.searchwrap{position:relative;max-width:440px;margin:0 auto 14px}
+.searchwrap svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--silver-dark)}
+#search{width:100%;padding:12px 16px 12px 44px;border:1px solid rgba(192,192,192,.18);border-radius:40px;background:rgba(255,255,255,.03);font-family:var(--font-main);font-size:.85rem;letter-spacing:1px;color:var(--white);outline:none;transition:var(--transition)}
+#search::placeholder{color:var(--silver-dark)}
+#search:focus{border-color:var(--silver);background:rgba(255,255,255,.06)}
+.filters{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.chip{padding:7px 16px;font-size:.66rem;letter-spacing:2px;text-transform:uppercase;background:transparent;color:var(--silver-dark);border:1px solid rgba(192,192,192,.15);border-radius:30px;font-family:var(--font-main);font-weight:500;transition:var(--transition);white-space:nowrap}
+.chip:hover{border-color:var(--silver);color:var(--white)}
+.chip.active{background:var(--silver);color:var(--black);border-color:var(--silver);font-weight:600}
+.chip .n{opacity:.55;margin-left:6px;font-weight:400}
+.countline{text-align:center;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:24px}
+.empty{text-align:center;padding:70px 20px;color:var(--silver-dark);letter-spacing:1px}
+
+#allProducts{grid-template-columns:repeat(5,1fr);gap:18px}
+#allProducts .product-card{display:flex;flex-direction:column}
+#allProducts .product-image{padding:0}
+#allProducts .product-info{padding:14px 14px 34px;flex:1;display:flex;flex-direction:column;position:relative}
+#allProducts .product-name{font-size:.82rem;letter-spacing:1px;margin-bottom:0;line-height:1.35;min-height:2.3em}
+/* The description is the tallest part of a card and it is what made these pages
+   endless. It stays on the featured row and on the product page. */
+#allProducts .product-desc{display:none}
+#allProducts .product-footer{flex-direction:column;align-items:stretch;gap:10px;padding-top:12px;margin-top:auto}
+#allProducts .product-price{text-align:center;font-size:1.05rem}
+#allProducts .btn-add{width:100%;padding:10px;text-align:center;justify-content:center}
+/* Pinned into reserved padding so a low-stock note on one card doesn't lift its
+   button out of line with the rest of the row. */
+#allProducts .stock-low{position:absolute;left:0;right:0;bottom:10px;margin:0;text-align:center}
+
+@media(max-width:1200px){#allProducts{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:980px){#allProducts{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+  #allProducts{grid-template-columns:repeat(2,1fr);gap:12px}
+  /* Nine chips wrap to five rows on a phone and the bar is sticky, so it would
+     eat half the screen. One swipeable strip instead. */
+  .filters{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+}
