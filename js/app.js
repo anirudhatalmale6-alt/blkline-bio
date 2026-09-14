@@ -230,12 +230,17 @@ function renderSaleBanner() {
 function renderAllProducts() {
   const featuredContainer = document.getElementById('featuredProducts');
   if (featuredContainer) {
-    // Order: anything flagged `pinned` leads the row (client picks the lead product),
-    // then anything badged "Best Seller" oldest first, then everything else.
-    const inStock = PRODUCTS.filter(p => p.stock > 0);
-    const isPinned = p => p.pinned === true;
+    // Order: pinned products lead the row in the order the client chose, then
+    // anything badged "Best Seller" oldest first, then everything else.
+    // `pinned` may be a number (its position in the row) or `true` for the legacy
+    // single-pin case; sorting pinned items by id alone meant the lower id always
+    // led, so two pinned products could not be put in a chosen order.
+    // `hideFromHome` keeps a product off this row only — it stays on the shop page.
+    const inStock = PRODUCTS.filter(p => p.stock > 0 && !p.hideFromHome);
+    const isPinned = p => p.pinned === true || typeof p.pinned === 'number';
+    const pinRank = p => (typeof p.pinned === 'number' ? p.pinned : 0);
     const isBestSeller = p => (p.badge || '').toLowerCase().includes('best');
-    const pinned = inStock.filter(isPinned).sort((a, b) => a.id - b.id);
+    const pinned = inStock.filter(isPinned).sort((a, b) => pinRank(a) - pinRank(b) || a.id - b.id);
     const rest = inStock.filter(p => !isPinned(p));
     const best = rest.filter(isBestSeller).sort((a, b) => a.id - b.id);
     const featured = pinned.concat(best, rest.filter(p => !isBestSeller(p)));
