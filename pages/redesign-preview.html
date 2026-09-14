@@ -28,6 +28,11 @@
     /* Four featured products, four columns. The shared auto-fill grid gave 3 at
        this width and wrapped the fourth onto a lonely second row. */
     #featuredProducts{grid-template-columns:repeat(4,1fr)}
+    /* Featured descriptions vary from one line to six, which left the shorter
+       cards with a gap and their price and button floating mid-card. */
+    #featuredProducts .product-card{display:flex;flex-direction:column}
+    #featuredProducts .product-info{flex:1;display:flex;flex-direction:column}
+    #featuredProducts .product-footer{margin-top:auto}
     @media(max-width:1100px){#featuredProducts{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:600px){#featuredProducts{grid-template-columns:1fr}}
     .hero-logo{width:110px;margin-bottom:22px}
