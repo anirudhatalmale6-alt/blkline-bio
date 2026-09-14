@@ -465,6 +465,31 @@
       }
     }
 
+    // Shrink to 600px for the product grid. Photos come off a phone at 1-2MB
+    // each and the shop page now shows all of them at once, so the grid loads a
+    // thumbnail and only the product page loads the full picture.
+    function makeThumb(dataUrl, maxPx) {
+      return new Promise(function(resolve) {
+        var img = new Image();
+        img.onload = function() {
+          var scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          var ctx = c.getContext('2d');
+          // Product shots sit on a black tile, so flatten transparency to black
+          // rather than letting JPEG fill it with white.
+          ctx.fillStyle = '#000';
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        // A thumbnail is an optimisation, never a reason to fail the upload.
+        img.onerror = function() { resolve(null); };
+        img.src = dataUrl;
+      });
+    }
+
     async function uploadImage() {
       if (!pendingImageData || !pendingImageName) return null;
       showStatus('Uploading image...', 'loading');
@@ -475,9 +500,33 @@
           body: JSON.stringify({ key: ADMIN_KEY, image: pendingImageData, fileName: pendingImageName })
         });
         var data = await resp.json();
-        if (data.success) return data.url;
-        showStatus('Image upload failed: ' + (data.error || 'unknown'), 'error');
-        return null;
+        if (!data.success) {
+          showStatus('Image upload failed: ' + (data.error || 'unknown'), 'error');
+          return null;
+        }
+
+        // Name the thumbnail off the URL the server returned, not off the file
+        // the user picked: the server sanitises and lowercases the name, and the
+        // shop page derives the thumbnail name from the stored one. Deriving it
+        // from anything else would give a name the site never looks for.
+        try {
+          var thumbData = await makeThumb(pendingImageData, 600);
+          if (thumbData) {
+            var storedName = data.url.split('/').pop();
+            var thumbName = storedName.replace(/\.[^.]+$/, '') + '.jpg';
+            await fetch(API_URL + '/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: ADMIN_KEY, image: thumbData, fileName: thumbName, thumb: true })
+            });
+          }
+        } catch (e) {
+          // The shop page falls back to the full image when a thumbnail is
+          // missing, so the product is still fine without one.
+          console.log('Thumbnail skipped:', e.message);
+        }
+
+        return data.url;
       } catch (err) {
         showStatus('Image upload error: ' + err.message, 'error');
         return null;

@@ -113,10 +113,10 @@ function renderCartItems() {
 
   container.innerHTML = cart.map(item => {
     const product = PRODUCTS.find(p => p.id === item.id);
-    const imgPath = product && product.image ? getImagePath(product) : '';
+    const imgPath = product && product.image ? getThumbPath(product) : '';
     return `
     <div class="cart-item">
-      <div class="cart-item-img">${imgPath ? `<img src="${imgPath}" alt="${item.name}">` : vialSVG}</div>
+      <div class="cart-item-img">${imgPath ? `<img src="${imgPath}" alt="${item.name}" ${thumbFallback(product)}>` : vialSVG}</div>
       <div class="cart-item-details">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">$${priceOf(item).toFixed(2)} ${item.currency}</div>
@@ -143,17 +143,39 @@ function getImagePath(p) {
   return isSubpage ? '../' + p.image : p.image;
 }
 
+// Grid cards and the cart render a ~250px tile, so they load a 600px thumbnail
+// (roughly 50KB) instead of the 1.5-2MB original. The product page still uses
+// getImagePath and gets the full-size photo.
+// Thumbnails live in a `thumbs/` folder beside the original and are always .jpg.
+// An image uploaded through the admin panel has no thumbnail until one is made,
+// so every caller must pair this with the onerror fallback below — otherwise a
+// brand new product shows a broken image instead of its photo.
+function getThumbPath(p) {
+  if (!p.image || p.image.startsWith('http')) return getImagePath(p);
+  const base = p.image.split('/').pop().replace(/\.[^.]+$/, '') + '.jpg';
+  if (p.image.startsWith('uploads/')) return API_BASE + '/uploads/thumbs/' + base;
+  const dir = p.image.replace(/[^/]+$/, '');
+  const isSubpage = window.location.pathname.includes('/pages/');
+  return (isSubpage ? '../' : '') + dir + 'thumbs/' + base;
+}
+
+// Swap to the full-size image if the thumbnail is missing. Clearing onerror
+// first stops it looping if the original is missing too.
+function thumbFallback(p) {
+  return `onerror="this.onerror=null;this.src='${getImagePath(p)}'"`;
+}
+
 function renderProducts(containerId, products) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = products.map(p => {
     const outOfStock = p.stock <= 0;
     const lowStock = p.stock > 0 && p.stock <= 3;
-    const imgPath = getImagePath(p);
+    const imgPath = getThumbPath(p);
     return `
     <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
       <div class="product-image">
-        ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy">` : vialSVG}
+        ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy" ${thumbFallback(p)}>` : vialSVG}
         ${p.badge === 'Coming Soon' && outOfStock ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.onSale && !outOfStock ? `<span class="product-badge badge-sale">${p.saleLabel || 'ON SALE'}</span>` : p.badge && p.badge !== 'Coming Soon' ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>
       <div class="product-info">
