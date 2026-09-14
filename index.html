@@ -8,6 +8,82 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ---------------------------------------------------------------
+       HOME PAGE LAYOUT
+       Featured products, then the full catalogue below with search and
+       category filters. Layout only — the palette, fonts and shared
+       components are untouched, and every rule here is scoped so it
+       cannot affect the featured row or any other page.
+       --------------------------------------------------------------- */
+
+    /* The header is fixed, so the promo banner sat underneath it at the very
+       top of the page and was never visible — the free starter pack offer was
+       invisible to every customer. Push it clear of the header. */
+    .promo-banner{margin-top:70px}
+
+    /* The hero was a full screen tall, so products started below the fold on
+       every device. Shorter hero = products visible almost immediately. */
+    .hero{min-height:auto;padding:50px 0 60px}
+    .hero-logo{width:110px;margin-bottom:22px}
+    .hero h1{font-size:clamp(2rem,4.5vw,3.2rem)}
+    .hero p{margin-bottom:32px}
+    .hero-line{display:none}
+    .features-bar{padding:40px 0}
+
+    /* Four featured products, four columns. The shared auto-fill grid gives 3
+       at this width and wraps the fourth onto a lonely second row. */
+    #featuredProducts{grid-template-columns:repeat(4,1fr)}
+    @media(max-width:1100px){#featuredProducts{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){#featuredProducts{grid-template-columns:1fr}}
+
+    /* ALL PRODUCTS ------------------------------------------------- */
+    /* "Shop Now" jumps here; without this the fixed header covers the heading. */
+    #shop{scroll-margin-top:90px}
+    .shopbar{position:sticky;top:70px;z-index:900;background:rgba(0,0,0,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(192,192,192,.08);padding:14px 0;margin-bottom:28px}
+    .searchwrap{position:relative;max-width:440px;margin:0 auto 14px}
+    .searchwrap svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--silver-dark)}
+    #search{width:100%;padding:12px 16px 12px 44px;border:1px solid rgba(192,192,192,.18);border-radius:40px;background:rgba(255,255,255,.03);font-family:var(--font-main);font-size:.85rem;letter-spacing:1px;color:var(--white);outline:none;transition:var(--transition)}
+    #search::placeholder{color:var(--silver-dark)}
+    #search:focus{border-color:var(--silver);background:rgba(255,255,255,.06)}
+
+    .filters{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 16px;font-size:.66rem;letter-spacing:2px;text-transform:uppercase;background:transparent;color:var(--silver-dark);border:1px solid rgba(192,192,192,.15);border-radius:30px;font-family:var(--font-main);font-weight:500;transition:var(--transition);white-space:nowrap}
+    .chip:hover{border-color:var(--silver);color:var(--white)}
+    .chip.active{background:var(--silver);color:var(--black);border-color:var(--silver);font-weight:600}
+    .chip .n{opacity:.55;margin-left:6px;font-weight:400}
+
+    .countline{text-align:center;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:24px}
+    .empty{text-align:center;padding:70px 20px;color:var(--silver-dark);letter-spacing:1px}
+
+    /* Five across, compact — scoped to #allProducts so the featured row above
+       keeps its larger cards and its descriptions. */
+    #allProducts{grid-template-columns:repeat(5,1fr);gap:18px}
+    #allProducts .product-card{display:flex;flex-direction:column}
+    #allProducts .product-image{padding:0}
+    #allProducts .product-info{padding:14px 14px 34px;flex:1;display:flex;flex-direction:column;position:relative}
+    #allProducts .product-name{font-size:.82rem;letter-spacing:1px;margin-bottom:0;line-height:1.35;min-height:2.3em}
+    /* The description is the tallest part of a card and it is what made the
+       page endless. It stays on the featured row and on the product page. */
+    #allProducts .product-desc{display:none}
+    #allProducts .product-footer{flex-direction:column;align-items:stretch;gap:10px;padding-top:12px;margin-top:auto}
+    #allProducts .product-price{text-align:center;font-size:1.05rem}
+    #allProducts .btn-add{width:100%;padding:10px;text-align:center;justify-content:center}
+    /* Pinned into reserved padding so a low-stock note on one card doesn't lift
+       its button out of line with the rest of the row. */
+    #allProducts .stock-low{position:absolute;left:0;right:0;bottom:10px;margin:0;text-align:center}
+
+    @media(max-width:1200px){#allProducts{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:980px){#allProducts{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:700px){
+      #allProducts{grid-template-columns:repeat(2,1fr);gap:12px}
+      .hero{padding:36px 0 44px}
+      /* Nine chips wrap to five rows on a phone and the bar is sticky, so it
+         would eat half the screen. One swipeable strip instead. */
+      .filters{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+      .filters::-webkit-scrollbar{display:none}
+    }
+  </style>
 </head>
 <body>
 
@@ -63,10 +139,9 @@
       <div class="tagline">Precision. Performance. Biology.</div>
       <p>Premium-grade peptides engineered for peak performance research. Verified purity. Uncompromising quality.</p>
       <div class="hero-cta">
-        <a href="pages/products.html" class="btn btn-primary">Shop Now</a>
+        <a href="#shop" class="btn btn-primary">Shop Now</a>
         <a href="pages/about.html" class="btn btn-outline">Learn More</a>
       </div>
-      <div class="hero-line"></div>
     </div>
   </section>
 
@@ -107,7 +182,7 @@
   </section>
 
   <!-- FEATURED PRODUCTS -->
-  <section class="section">
+  <section class="section" style="padding-bottom:40px">
     <div class="container">
       <div id="saleBanner"></div>
       <div class="section-header fade-up">
@@ -116,9 +191,33 @@
         <div class="section-line"></div>
       </div>
       <div class="products-grid" id="featuredProducts"></div>
-      <div style="text-align:center;margin-top:48px" class="fade-up">
-        <a href="pages/products.html" class="btn btn-outline">View All Products</a>
+    </div>
+  </section>
+
+  <!-- ALL PRODUCTS -->
+  <section id="shop" style="padding-bottom:70px">
+    <div class="container">
+      <div class="section-header fade-up" style="margin-bottom:28px">
+        <div class="section-label">Everything We Stock</div>
+        <h2 class="section-title">All Products</h2>
+        <div class="section-line"></div>
       </div>
+    </div>
+
+    <div class="shopbar">
+      <div class="container">
+        <div class="searchwrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" type="text" placeholder="Search a peptide, e.g. retatrutide" autocomplete="off">
+        </div>
+        <div class="filters" id="filters"></div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="countline" id="countline"></div>
+      <div class="products-grid" id="allProducts"></div>
+      <div class="empty" id="empty" style="display:none">Nothing matches that search.</div>
     </div>
   </section>
 
@@ -151,13 +250,6 @@
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- CTA BANNER -->
-  <section class="cta-banner">
-    <h2 class="fade-up">Ready to Elevate Your Research?</h2>
-    <p class="fade-up">Browse our full collection of premium-grade peptides.</p>
-    <a href="pages/products.html" class="btn btn-primary fade-up">Explore Products</a>
   </section>
 
   <!-- FOOTER -->
@@ -234,5 +326,56 @@
   </div>
 
   <script src="js/app.js"></script>
+  <script>
+    // Fixed order so the bar doesn't reshuffle when stock changes; counts come
+    // from the live catalogue and anything unexpected is appended rather than
+    // dropped, so a new category can never go missing from the filters.
+    var ORDER = ['Weight Loss','Recovery','Anti-Aging','Cognitive','Tanning','Nasal Sprays','Supplies','Accessories','Vial Caps'];
+    var activeCat = 'all';
+
+    function currentList() {
+      var q = document.getElementById('search').value.trim().toLowerCase();
+      return PRODUCTS.filter(function(p) {
+        if (activeCat !== 'all' && p.category !== activeCat) return false;
+        if (!q) return true;
+        return (p.name + ' ' + p.category + ' ' + (p.desc || '')).toLowerCase().indexOf(q) !== -1;
+      });
+    }
+
+    function draw() {
+      var list = currentList();
+      renderProducts('allProducts', list);
+      document.getElementById('empty').style.display = list.length ? 'none' : 'block';
+      document.getElementById('countline').textContent =
+        list.length + (list.length === 1 ? ' product' : ' products') +
+        (activeCat === 'all' ? '' : ' in ' + activeCat);
+    }
+
+    function buildFilters() {
+      var counts = {};
+      PRODUCTS.forEach(function(p) { counts[p.category] = (counts[p.category] || 0) + 1; });
+      var cats = ORDER.filter(function(c) { return counts[c]; })
+        .concat(Object.keys(counts).filter(function(c) { return ORDER.indexOf(c) === -1; }));
+      var html = '<button class="chip active" data-cat="all">All<span class="n">' + PRODUCTS.length + '</span></button>';
+      cats.forEach(function(c) {
+        html += '<button class="chip" data-cat="' + c + '">' + c + '<span class="n">' + counts[c] + '</span></button>';
+      });
+      var bar = document.getElementById('filters');
+      bar.innerHTML = html;
+      bar.querySelectorAll('.chip').forEach(function(btn) {
+        btn.onclick = function() {
+          bar.querySelectorAll('.chip').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          activeCat = btn.dataset.cat;
+          draw();
+        };
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', draw);
+    // app.js renders from the same promise; waiting on it here means this runs
+    // after PRODUCTS is populated, not against an empty array.
+    PRODUCTS_READY.then(function() { buildFilters(); draw(); });
+  </script>
 </body>
 </html>
