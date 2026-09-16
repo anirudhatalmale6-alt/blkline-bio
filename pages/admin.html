@@ -675,7 +675,12 @@
         var itemsHtml = order.items.map(function(item) {
           // Orders placed before categories were recorded have none — fall back
           // to the live catalogue so old orders read the same as new ones.
-          var known = allProducts.find(function(p) { return p.name === item.realName; });
+          // previousNames covers products renamed since the order was placed —
+          // without it a renamed product's past orders lose their category, and
+          // those are exactly the orders still waiting to be packed.
+          var known = allProducts.find(function(p) {
+            return p.name === item.realName || (p.previousNames || []).indexOf(item.realName) !== -1;
+          });
           var cat = item.category || (known ? known.category : '');
           // Spelled out because a peptide powder and the nasal spray of the same
           // peptide can read almost identically, and packing the wrong one means
