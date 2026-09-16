@@ -174,7 +174,7 @@ function renderProducts(containerId, products) {
     const imgPath = getThumbPath(p);
     return `
     <div class="product-card fade-up ${outOfStock ? 'out-of-stock' : ''}" onclick="goToProduct(${p.id})">
-      <div class="product-image">
+      <div class="product-image${p.fitContain ? ' fit-contain' : ''}">
         ${p.image ? `<img src="${imgPath}" alt="${p.name}" loading="lazy" ${thumbFallback(p)}>` : vialSVG}
         ${p.badge === 'Coming Soon' && outOfStock ? `<span class="product-badge badge-soon">${p.badge}</span>` : p.onSale && !outOfStock ? `<span class="product-badge badge-sale">${p.saleLabel || 'ON SALE'}</span>` : p.badge && p.badge !== 'Coming Soon' ? `<span class="product-badge">${p.badge}</span>` : ''}
       </div>

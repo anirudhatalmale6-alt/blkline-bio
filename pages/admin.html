@@ -76,6 +76,7 @@
     .order-item{display:flex;justify-content:space-between;padding:6px 0;font-size:.8rem;border-bottom:1px solid rgba(192,192,192,.03)}
     .order-item .name{color:var(--white)}
     .order-item .qty{color:var(--silver-dark);margin-left:8px}
+    .order-item .cat{display:inline-block;margin-left:10px;padding:2px 8px;border-radius:3px;background:rgba(232,168,56,.14);color:#e8a838;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;vertical-align:middle}
     .order-item .price{color:var(--silver);font-family:var(--font-display);letter-spacing:1px}
     .order-total{display:flex;justify-content:space-between;padding-top:8px;font-size:.85rem;font-weight:600}
     .order-total .label{color:var(--white)}
@@ -672,8 +673,16 @@
         var dateStr = date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
         var itemsHtml = order.items.map(function(item) {
+          // Orders placed before categories were recorded have none — fall back
+          // to the live catalogue so old orders read the same as new ones.
+          var known = allProducts.find(function(p) { return p.name === item.realName; });
+          var cat = item.category || (known ? known.category : '');
+          // Spelled out because a peptide powder and the nasal spray of the same
+          // peptide can read almost identically, and packing the wrong one means
+          // the customer gets the wrong goods.
+          var catHtml = cat ? '<span class="cat">' + cat + '</span>' : '';
           return '<div class="order-item">' +
-            '<div><span class="name">' + item.realName + '</span><span class="qty"> x' + item.quantity + '</span></div>' +
+            '<div><span class="name">' + item.realName + '</span><span class="qty"> x' + item.quantity + '</span>' + catHtml + '</div>' +
             '<span class="price">$' + item.amount + '</span>' +
           '</div>';
         }).join('');

@@ -78,6 +78,11 @@ button{cursor:pointer;font-family:inherit}
 .product-image::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(192,192,192,.03),transparent);pointer-events:none}
 .product-image svg{width:80px;height:80px;opacity:.2}
 .product-image img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+/* Most product shots are square and crop harmlessly, but a tall promo graphic
+   loses its heading and its price to the crop. `fitContain` on the product
+   shows the whole image instead, letterboxed against the card's black tile. */
+.product-image.fit-contain img{object-fit:contain}
+.product-detail-image.fit-contain img{object-fit:contain}
 .product-badge{position:absolute;top:12px;right:12px;padding:4px 10px;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;background:var(--silver);color:var(--black);border-radius:2px;font-weight:700}
 .product-info{padding:20px}
 .product-category{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--silver-dark);margin-bottom:6px}

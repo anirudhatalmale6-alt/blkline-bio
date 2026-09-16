@@ -138,7 +138,7 @@
       const lowStock = product.stock > 0 && product.stock <= 3;
 
       document.getElementById('productDetail').innerHTML = `
-        <div class="product-detail-image fade-up" ${outOfStock ? 'style="opacity:.5"' : ''}>
+        <div class="product-detail-image fade-up${product.fitContain ? ' fit-contain' : ''}" ${outOfStock ? 'style="opacity:.5"' : ''}>
           ${product.image ? `<img src="${getImagePath(product)}" alt="${product.name}">` : vialSVG.replace('width="64"','width="120"').replace('height="64"','height="120"')}
         </div>
         <div class="product-detail-info fade-up">
