@@ -358,8 +358,36 @@ var PRODUCTS_READY = fetch(API_BASE + '/products')
   })
   .catch(() => {});
 
+// A bank-transfer order that couldn't reach the server is kept in localStorage
+// by the checkout page. Retry it on any later page view, so an order lost to a
+// dropped connection lands by itself instead of only existing as a payment
+// reference in the customer's banking app.
+function flushPendingOrders() {
+  let queue;
+  try {
+    queue = JSON.parse(localStorage.getItem('blkline_pending_orders') || '[]');
+  } catch (e) { return; }
+  if (!queue.length) return;
+
+  // Drop each order from the queue only once the server has accepted it, or has
+  // refused it outright — a network failure leaves it queued for next time.
+  Promise.all(queue.map(order =>
+    fetch(API_BASE + '/bank-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    })
+      .then(r => (r.ok || (r.status >= 400 && r.status < 500) ? null : order))
+      .catch(() => order)
+  )).then(results => {
+    const left = results.filter(Boolean);
+    localStorage.setItem('blkline_pending_orders', JSON.stringify(left));
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
   observeFadeUp();
+  flushPendingOrders();
   PRODUCTS_READY.then(() => { renderSaleBanner(); renderAllProducts(); });
 });

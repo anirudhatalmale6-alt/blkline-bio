@@ -207,6 +207,14 @@
         </div>
         <p style="font-size:.75rem;color:var(--silver-dark)">Use your order number as the payment reference.</p>
       </div>
+      <!-- Shown only when the order could not be saved to the server. The customer
+           is about to transfer money against this reference, so they have to be
+           told that we don't have their order yet. -->
+      <div id="confirmWarning" style="display:none;text-align:left;margin-bottom:20px;padding:14px 16px;background:rgba(232,168,56,.08);border:1px solid rgba(232,168,56,.35);border-radius:var(--radius)">
+        <p style="color:#e8a838;font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Action needed</p>
+        <p style="color:var(--white-dim);font-size:.82rem;line-height:1.6;margin:0">We couldn't confirm your order with our system just now. Your order number above is still valid &mdash; please tap <strong>Confirm via WhatsApp</strong> below so we receive your details, otherwise your transfer may arrive without an order attached.</p>
+      </div>
+
       <p style="color:var(--white-muted);font-size:.85rem;margin-bottom:24px">Send your payment confirmation screenshot via WhatsApp for faster processing.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <a href="#" id="confirmWhatsApp" class="btn btn-primary" target="_blank">Confirm via WhatsApp</a>
@@ -472,6 +480,37 @@
       });
     }
 
+    // Three attempts with a short backoff. Covers a dropped connection or a
+    // moment of server trouble; it cannot cover a browser extension blocking the
+    // request outright, which is what the queue and the warning below are for.
+    function recordBankOrder(payload, attempt) {
+      attempt = attempt || 1;
+      return fetch(API_BASE + '/bank-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function(r) {
+        if (r.ok) return true;
+        // A 4xx means the server read it and refused — retrying sends the same
+        // thing again, so don't.
+        if (r.status >= 400 && r.status < 500) return false;
+        throw new Error('HTTP ' + r.status);
+      }).catch(function() {
+        if (attempt >= 3) return false;
+        return new Promise(function(resolve) {
+          setTimeout(function() { resolve(recordBankOrder(payload, attempt + 1)); }, attempt * 1500);
+        });
+      });
+    }
+
+    function queuePendingOrder(payload) {
+      try {
+        var q = JSON.parse(localStorage.getItem('blkline_pending_orders') || '[]');
+        if (!q.some(function(o) { return o.id === payload.id; })) q.push(payload);
+        localStorage.setItem('blkline_pending_orders', JSON.stringify(q));
+      } catch (e) { /* private mode — the WhatsApp prompt is still shown */ }
+    }
+
     function submitOrder(e) {
       e.preventDefault();
       const form = e.target;
@@ -523,11 +562,17 @@
         currency: 'AUD',
         notes: combinedNotes
       };
-      fetch(API_BASE + '/bank-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload)
-      }).catch(() => {});
+      // A bank-transfer customer walks away with an order number and pays from
+      // their banking app, so if this POST is lost the money arrives with a
+      // reference that matches no order. It used to be fire-and-forget with the
+      // error swallowed, and one $250 transfer arrived for an order that was
+      // never recorded. Now: retry, then queue it, then TELL the customer.
+      recordBankOrder(orderPayload).then(function(ok) {
+        if (ok) return;
+        queuePendingOrder(orderPayload);
+        var warn = document.getElementById('confirmWarning');
+        if (warn) warn.style.display = 'block';
+      });
 
       const orderText = `New Order ${orderNum}%0A` +
         `Name: ${fullName}%0A` +
