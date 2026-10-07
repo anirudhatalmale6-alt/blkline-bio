@@ -121,6 +121,7 @@
               <button type="submit" class="btn btn-primary" style="width:100%">Send Message</button>
             </form>
             <p id="contactSuccess" style="display:none;text-align:center;color:#25D366;margin-top:16px;font-size:.85rem">Message sent! We'll get back to you shortly.</p>
+            <p id="contactError" style="display:none;text-align:center;color:#e8a838;margin-top:16px;font-size:.85rem;line-height:1.6">We couldn't send your message just now. Please try again, or reach us on <a href="https://wa.me/61494749909" target="_blank" style="color:#25D366;text-decoration:underline">WhatsApp</a>.</p>
           </div>
         </div>
       </div>
@@ -146,11 +147,43 @@
 
   <script src="../js/app.js"></script>
   <script>
+    // This used to show "message sent" and then discard the message — it was
+    // never connected to anything, so every enquiry was lost. Now it actually
+    // sends, and says so honestly when it can't.
     function sendContactForm(e) {
       e.preventDefault();
-      document.getElementById('contactSuccess').style.display = 'block';
-      e.target.reset();
-      setTimeout(() => { document.getElementById('contactSuccess').style.display = 'none'; }, 5000);
+      const form = e.target;
+      const data = new FormData(form);
+      const btn = form.querySelector('button[type=submit]');
+      const original = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+      const fail = document.getElementById('contactError');
+      if (fail) fail.style.display = 'none';
+
+      fetch(API_BASE + '/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.get('name') || '',
+          email: data.get('email') || '',
+          subject: data.get('subject') || '',
+          message: data.get('message') || ''
+        })
+      })
+        .then(r => r.json().then(j => ({ ok: r.ok, j })))
+        .then(({ ok }) => {
+          if (!ok) throw new Error('rejected');
+          document.getElementById('contactSuccess').style.display = 'block';
+          form.reset();
+          setTimeout(() => { document.getElementById('contactSuccess').style.display = 'none'; }, 6000);
+        })
+        .catch(() => {
+          // Never tell someone their message was sent when it wasn't — point
+          // them at WhatsApp instead.
+          if (fail) fail.style.display = 'block';
+        })
+        .finally(() => { if (btn) { btn.disabled = false; btn.textContent = original; } });
     }
   </script>
 </body>
